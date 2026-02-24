@@ -1093,7 +1093,7 @@ function restartGame(){
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   keys[e.key.toLowerCase()]=true;
-  const modal=document.getElementById('sm').classList.contains('open');
+  const modal=document.getElementById('shop-modal').classList.contains('open');
   if(e.key===' '){e.preventDefault();if(!modal)playerFire();}
   if(e.key.toLowerCase()==='f'&&!modal)playerInteract();
   if(e.key.toLowerCase()==='r'&&!modal)playerRecharge();
@@ -1107,22 +1107,22 @@ document.addEventListener('keydown',e=>{
   }
 });
 document.addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=false;});
-cv.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
-cv.addEventListener('click',e=>{
-  if(gameOver||document.getElementById('sm').classList.contains('open'))return;
+canvas.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+canvas.addEventListener('click',e=>{
+  if(gameOver||document.getElementById('shop-modal').classList.contains('open'))return;
   playerFire();
 });
 
 function loop(t){
   W=innerWidth;H=innerHeight;
-  if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
+  if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}
   const dt=Math.min((t-lastT)/1000,.05);lastT=t;
   update(dt);draw(t);requestAnimationFrame(loop);
 }
 
 // Start
 renderHangar();
-cv.width=W;cv.height=H;
+canvas.width=W;canvas.height=H;
 initPlayer();genWorld();
 requestAnimationFrame(t=>{lastT=t;requestAnimationFrame(loop);});
 </script>
