@@ -407,7 +407,7 @@ function genWorld(){
 
 function spawnEnemyShip(base){
   const a=Math.random()*Math.PI*2,r=60+Math.random()*50;
-  enemyShips.push({x:base.x+Math.cos(a)*r,y:base.y+Math.sin(a)*r,vx:0,vy:0,angle:a,hp:28,maxHp:28,base,patrolA:a,patrolR:r,shootCd:Math.random()*2,stunTimer:0});
+  enemyShips.push({x:base.x+Math.cos(a)*r,y:base.y+Math.sin(a)*r,vx:0,vy:0,angle:a,hp:28,maxHp:28,base,patrolA:a,patrolR:r,shootCd:Math.random()*2,stunTimer:0,orbitDir:Math.random()<.5?1:-1});
 }
 
 function spawnBoss(base){
@@ -421,7 +421,7 @@ function spawnAlly(x,y,type){
   const at=ALLY_TYPES.find(a=>a.id===type)||ALLY_TYPES[0];
   const a=Math.random()*Math.PI*2;
   const spd=cfg.spd==='fast'?2.0:cfg.spd==='slow'?0.8:1.3;
-  allyShips.push({x:x+Math.cos(a)*20,y:y+Math.sin(a)*20,vx:0,vy:0,angle:a,hp:cfg.hp,maxHp:cfg.hp,dmg:cfg.hp===35?10:cfg.hp===60?16:cfg.hp===120?25:30,speed:spd,type,shootCd:Math.random()*1.5,draw:at.draw});
+  allyShips.push({x:x+Math.cos(a)*20,y:y+Math.sin(a)*20,vx:0,vy:0,angle:a,hp:cfg.hp,maxHp:cfg.hp,dmg:cfg.hp===35?10:cfg.hp===60?16:cfg.hp===120?25:30,speed:spd,type,shootCd:Math.random()*1.5,draw:at.draw,orbitDir:Math.random()<.5?1:-1});
 }
 
 function spawnMapItems(){
@@ -709,13 +709,42 @@ function update(dt){
     const dp=Math.hypot(p.x-e.x,p.y-e.y);
     if(dp<300){
       const a=Math.atan2(p.y-e.y,p.x-e.x);
-      e.vx+=Math.cos(a)*1.8*dt*60;e.vy+=Math.sin(a)*1.8*dt*60;e.angle=a;
-      if(dp<200&&e.shootCd<=0){e.shootCd=1.6+Math.random()*.8;fireLaser(e.x,e.y,a+(Math.random()-.5)*.25,false,10,'#ff3d6b',false);}
+      e.angle=a;
+      if(!e.state){e.state='approach';e.stateT=0;e.strafeDir=e.orbitDir||1;e.jinkT=0;e.jinkV=0;e.reposA=0;}
+      e.stateT+=dt;
+      if(e.state==='approach'){
+        // Dive toward player at full speed with random jinking to dodge fire
+        e.vx+=Math.cos(a)*2.4*dt*60;e.vy+=Math.sin(a)*2.4*dt*60;
+        if(e.jinkT<=0){e.jinkV=(Math.random()-.5)*2;e.jinkT=.22+Math.random()*.22;}
+        e.jinkT-=dt;
+        const jta=a+Math.PI/2;e.vx+=Math.cos(jta)*e.jinkV*dt*60;e.vy+=Math.sin(jta)*e.jinkV*dt*60;
+        if(dp<160){e.state='strafe';e.stateT=0;e.strafeDir=Math.random()<.5?1:-1;}
+      } else if(e.state==='strafe'){
+        // Fly across the player's position while shooting — classic attack run
+        const ta=a+Math.PI/2*e.strafeDir;
+        e.vx+=Math.cos(ta)*2.2*dt*60;e.vy+=Math.sin(ta)*2.2*dt*60;
+        if(dp>200){e.vx+=Math.cos(a)*1*dt*60;e.vy+=Math.sin(a)*1*dt*60;}
+        else if(dp<80){e.vx-=Math.cos(a)*1.5*dt*60;e.vy-=Math.sin(a)*1.5*dt*60;}
+        if(e.stateT>1.2+Math.random()*.8){e.state='disengage';e.stateT=0;}
+      } else if(e.state==='disengage'){
+        // Break off — accelerate away and swing to one side
+        e.vx-=Math.cos(a)*2.5*dt*60;e.vy-=Math.sin(a)*2.5*dt*60;
+        const ta=a+Math.PI/2*e.strafeDir;e.vx+=Math.cos(ta)*1*dt*60;e.vy+=Math.sin(ta)*1*dt*60;
+        if(dp>260||e.stateT>1.2){e.state='reposition';e.stateT=0;e.reposA=a+(Math.random()-.5)*Math.PI*1.4;}
+      } else if(e.state==='reposition'){
+        // Circle to a fresh attack angle before diving again
+        const rpx=p.x+Math.cos(e.reposA)*260,rpy=p.y+Math.sin(e.reposA)*260;
+        const ra=Math.atan2(rpy-e.y,rpx-e.x);e.vx+=Math.cos(ra)*2*dt*60;e.vy+=Math.sin(ra)*2*dt*60;
+        if(Math.hypot(rpx-e.x,rpy-e.y)<70||e.stateT>2){e.state='approach';e.stateT=0;}
+      }
+      if(dp<220&&e.shootCd<=0&&e.state!=='disengage'){e.shootCd=1.6+Math.random()*.8;fireLaser(e.x,e.y,a+(Math.random()-.5)*.25,false,10,'#ff3d6b',false);}
     } else {
+      e.state=null;
       e.patrolA+=.006;
       const tx=e.base.x+Math.cos(e.patrolA)*e.patrolR,ty=e.base.y+Math.sin(e.patrolA)*e.patrolR;
       const a=Math.atan2(ty-e.y,tx-e.x);e.vx+=Math.cos(a)*1.4*dt*60;e.vy+=Math.sin(a)*1.4*dt*60;e.angle=a;
     }
+    for(const e2 of enemyShips){if(e2===e)continue;const sd=Math.hypot(e2.x-e.x,e2.y-e.y);if(sd<32&&sd>0){e.vx-=(e2.x-e.x)/sd*1.5;e.vy-=(e2.y-e.y)/sd*1.5;}}
     e.vx*=.88;e.vy*=.88;
     e.x=Math.max(5,Math.min(MAP_W-5,e.x+e.vx));e.y=Math.max(5,Math.min(MAP_H-5,e.y+e.vy));
   }
@@ -739,7 +768,16 @@ function update(dt){
           p.hp-=d;p.invTimer=.6;burst(p.x,p.y,'#cc00ff',12,4);if(p.hp<=0){endGame(false);return;}
         }
       } else {
-        const a=Math.atan2(p.y-boss.y,p.x-boss.x);boss.vx+=Math.cos(a)*.9*sm*dt*60;boss.vy+=Math.sin(a)*.9*sm*dt*60;boss.angle=a;
+        const a=Math.atan2(p.y-boss.y,p.x-boss.x);
+        boss.angle=a;
+        // Keep preferred combat range — close in if too far, back off if too close
+        if(dp>220){boss.vx+=Math.cos(a)*.9*sm*dt*60;boss.vy+=Math.sin(a)*.9*sm*dt*60;}
+        else if(dp<130){boss.vx-=Math.cos(a)*1.2*sm*dt*60;boss.vy-=Math.sin(a)*1.2*sm*dt*60;}
+        // Strafe laterally and flip direction every 2-4 s so it isn't a sitting target
+        if(!boss.strafeDir){boss.strafeDir=1;boss.strafeT=2+Math.random()*2;}
+        boss.strafeT-=dt;if(boss.strafeT<=0){boss.strafeDir*=-1;boss.strafeT=2+Math.random()*2;}
+        const ta=a+Math.PI/2*boss.strafeDir;
+        boss.vx+=Math.cos(ta)*.55*sm*dt*60;boss.vy+=Math.sin(ta)*.55*sm*dt*60;
         if(boss.chargeCd<=0&&dp<350){
           boss.charging=true;boss.chargeTimer=.5;
           const ca=Math.atan2(p.y-boss.y,p.x-boss.x);
@@ -759,7 +797,7 @@ function update(dt){
       }
       if(boss.minionCd<=0){
         const mc=boss.phase===2?3:2;
-        for(let i=0;i<mc;i++){const a=Math.random()*Math.PI*2,r=60+Math.random()*40;enemyShips.push({x:boss.x+Math.cos(a)*r,y:boss.y+Math.sin(a)*r,vx:0,vy:0,angle:a,hp:20,maxHp:20,base:{x:boss.x,y:boss.y},patrolA:a,patrolR:50,shootCd:Math.random()*1.5,stunTimer:0});}
+        for(let i=0;i<mc;i++){const a=Math.random()*Math.PI*2,r=60+Math.random()*40;enemyShips.push({x:boss.x+Math.cos(a)*r,y:boss.y+Math.sin(a)*r,vx:0,vy:0,angle:a,hp:20,maxHp:20,base:{x:boss.x,y:boss.y},patrolA:a,patrolR:50,shootCd:Math.random()*1.5,stunTimer:0,orbitDir:Math.random()<.5?1:-1});}
         boss.minionCd=boss.phase===2?4:7;burst(boss.x,boss.y,'#ff3d6b',15,4);glog(`💀 BOSS summons ${mc} minions!`);
       }
     }
@@ -774,15 +812,24 @@ function update(dt){
     let nearB=null,minDB=Infinity;
     for(const b of bases){if(b.type==='enemy'&&!b.captured){const d=Math.hypot(b.x-a.x,b.y-a.y);if(d<minDB){minDB=d;nearB=b;}}}
     if(nearest&&minDE<280){
-      const ang=Math.atan2(nearest.y-a.y,nearest.x-a.x);a.vx+=Math.cos(ang)*a.speed*dt*60;a.vy+=Math.sin(ang)*a.speed*dt*60;a.angle=ang;
+      const ang=Math.atan2(nearest.y-a.y,nearest.x-a.x);
+      if(minDE>140){a.vx+=Math.cos(ang)*a.speed*dt*60;a.vy+=Math.sin(ang)*a.speed*dt*60;}
+      else if(minDE<70){a.vx-=Math.cos(ang)*a.speed*dt*60;a.vy-=Math.sin(ang)*a.speed*dt*60;}
+      const ta=ang+Math.PI/2*(a.orbitDir||1);
+      a.vx+=Math.cos(ta)*a.speed*.8*dt*60;a.vy+=Math.sin(ta)*a.speed*.8*dt*60;
+      a.angle=ang;
       if(a.shootCd<=0&&minDE<200){a.shootCd=1+Math.random()*.5;fireLaser(a.x,a.y,ang+(Math.random()-.5)*.2,true,a.dmg,'#39ff14',false);}
     } else if(nearB&&minDB<500){
       const ang=Math.atan2(nearB.y-a.y,nearB.x-a.x);a.vx+=Math.cos(ang)*a.speed*dt*60;a.vy+=Math.sin(ang)*a.speed*dt*60;a.angle=ang;
       if(a.shootCd<=0&&minDB<110){a.shootCd=1;nearB.hp-=a.dmg;burst(nearB.x,nearB.y,'#39ff14',4,2);if(nearB.hp<=0)captureBase(nearB);}
     } else {
-      const dp2=Math.hypot(p.x-a.x,p.y-a.y);
-      if(dp2>90){const ang=Math.atan2(p.y-a.y,p.x-a.x);a.vx+=Math.cos(ang)*a.speed*dt*60;a.vy+=Math.sin(ang)*a.speed*dt*60;a.angle=ang;}
+      const idx=allyShips.indexOf(a);
+      const fAngle=(idx/Math.max(1,allyShips.length))*Math.PI*2;
+      const tx=p.x+Math.cos(fAngle)*90,ty=p.y+Math.sin(fAngle)*90;
+      const dp2=Math.hypot(tx-a.x,ty-a.y);
+      if(dp2>20){const ang=Math.atan2(ty-a.y,tx-a.x);a.vx+=Math.cos(ang)*a.speed*dt*60;a.vy+=Math.sin(ang)*a.speed*dt*60;a.angle=ang;}
     }
+    for(const a2 of allyShips){if(a2===a)continue;const sd=Math.hypot(a2.x-a.x,a2.y-a.y);if(sd<30&&sd>0){a.vx-=(a2.x-a.x)/sd*1.5;a.vy-=(a2.y-a.y)/sd*1.5;}}
     a.vx*=.87;a.vy*=.87;a.x=Math.max(5,Math.min(MAP_W-5,a.x+a.vx));a.y=Math.max(5,Math.min(MAP_H-5,a.y+a.vy));
   }
 
