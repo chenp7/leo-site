@@ -3,99 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leo Chen - Under Construction</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #e0e0e0;
-      overflow: hidden;
-    }
-
-    .container {
-      text-align: center;
-      padding: 3rem 2rem;
-      max-width: 600px;
-      animation: fadeInUp 1s ease-out;
-    }
-
-    .icon {
-      font-size: 4rem;
-      margin-bottom: 1.5rem;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      background: linear-gradient(90deg, #a78bfa, #60a5fa, #a78bfa);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: shimmer 3s linear infinite;
-    }
-
-    .subtitle {
-      font-size: 1.2rem;
-      color: #b0b0cc;
-      margin-bottom: 0.75rem;
-    }
-
-    .description {
-      font-size: 1rem;
-      color: #8888aa;
-      line-height: 1.6;
-    }
-
-    .divider {
-      width: 60px;
-      height: 3px;
-      background: linear-gradient(90deg, #a78bfa, #60a5fa);
-      border: none;
-      border-radius: 2px;
-      margin: 1.5rem auto;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-
-    @keyframes shimmer {
-      to { background-position: 200% center; }
-    }
-  </style>
+  <title>Leo Chen</title>
+  <meta name="description" content="Leo Chen — games, art, woodwork, and online tools." />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="icon">&#128736;</div>
-    <h1>Under Construction</h1>
-    <p class="subtitle">Welcome to Leo Chen's website.</p>
-    <hr class="divider" />
-    <p class="description">This site is currently under construction, and more awesome content is coming soon.</p>
-  </div>
+
+  <!-- ── Navigation ── -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">LEO CHEN</a>
+    <button class="nav-toggle" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="games/index.html">Games</a></li>
+      <li><a href="art/index.html">Art &amp; Woodwork</a></li>
+      <li><a href="tools/index.html">Tools</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="feedback.html">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="container hero-content">
+      <p class="hero-label">// leochen.space</p>
+      <h1 class="hero-name">Leo Chen</h1>
+      <p class="hero-tagline">Vibe Coder &middot; Artist &middot; Woodworker</p>
+      <div class="hero-accent-line"></div>
+      <p class="hero-bio">
+        I'm 10 years old and I love making things — browser games, art, woodwork, and more.
+        This is my corner of the internet where I share what I create.
+      </p>
+      <div class="hero-nav-cards">
+        <a href="games/index.html" class="hero-nav-card">
+          <span class="hero-nav-card-icon">🎮</span>
+          <span class="hero-nav-card-title">GAMES</span>
+          <span class="hero-nav-card-sub">Browser games</span>
+        </a>
+        <a href="art/index.html" class="hero-nav-card">
+          <span class="hero-nav-card-icon">🎨</span>
+          <span class="hero-nav-card-title">ART &amp; WOODWORK</span>
+          <span class="hero-nav-card-sub">Visual creations</span>
+        </a>
+        <a href="tools/index.html" class="hero-nav-card">
+          <span class="hero-nav-card-icon">🔧</span>
+          <span class="hero-nav-card-title">TOOLS</span>
+          <span class="hero-nav-card-sub">Online utilities</span>
+        </a>
+        <a href="about.html" class="hero-nav-card">
+          <span class="hero-nav-card-icon">👤</span>
+          <span class="hero-nav-card-title">ABOUT</span>
+          <span class="hero-nav-card-sub">Who I am</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">&copy; 2025 Leo Chen</span>
+        <ul class="footer-links">
+          <li><a href="games/index.html">Games</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="feedback.html">Feedback</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
