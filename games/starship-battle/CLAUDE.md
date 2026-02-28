@@ -26,7 +26,7 @@ Single-file HTML5 Canvas space shooter (`index.html`, ~2100 lines). No build too
 ### Key Constants
 - `MAP_W = 3000`, `MAP_H = 2400` (small arena)
 - `MAX_WAVES = 10`
-- `INTERMISSION_FRAMES = 480` (8 seconds between waves)
+- `INTERMISSION_FRAMES = 180` (3 seconds between waves)
 - `DRAG = 0.97`, `BULLET_SPEED = 12`
 
 ## Game Systems
@@ -79,7 +79,7 @@ Single-file HTML5 Canvas space shooter (`index.html`, ~2100 lines). No build too
 |---------|-----|----------|--------|
 | EMP Blast | 1 | 15s (900f) | Stuns enemies in 300px for 2s, cyan ring visual |
 | Time Slow | 2 | 20s (1200f) | Enemies at 30% speed for 4s, purple overlay |
-| Orbital Strike | 3 | 25s (1500f) | 200 damage in 80px at mouse pos, 1s charge, 3s beam visual |
+| Orbital Strike | 3 | 12s (720f) | Instant-kills all non-boss enemies in 200px; bosses take 75% max HP. No linger. |
 
 ### Upgrade Shop (opens between waves)
 8 upgrades (3 levels each), purchased with score:
@@ -115,4 +115,6 @@ Multipliers applied in update loop: `speedMult`, `fireRateMult`, `dmgMult`, `shi
 - Enemy `alertTimer` is set to 200 on spawn so they aggro immediately
 - Drone contact damage checks both player and allies
 - Shielded enemies take reduced frontal damage when front shield is up
-- Orbital strike deals damage modified by player's damage upgrade
+- Orbital strike: instant-kill in 200px radius, bosses take 75% max HP (ignores damage upgrade)
+- EMP Blast targets cursor position (not player position)
+- **Brace hygiene**: `play.html` is one giant script — mismatched `{}` cause a silent syntax error and a black screen. Always verify brace balance when editing `update()` or `draw()`.

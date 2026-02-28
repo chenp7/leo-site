@@ -481,14 +481,14 @@ let wave = 0;
 let waveEnemiesLeft = 0;
 let waveActive = false;
 let intermissionTimer = 0;
-const INTERMISSION_FRAMES = 480; // 8 seconds at 60fps
+const INTERMISSION_FRAMES = 180; // 3 seconds at 60fps
 const MAX_WAVES = 10;
 
 // Abilities
 let abilities = {
   emp: { cooldown: 0, maxCooldown: 900 },
   timeSlow: { cooldown: 0, maxCooldown: 1200 },
-  orbital: { cooldown: 0, maxCooldown: 1500 }
+  orbital: { cooldown: 0, maxCooldown: 720 }
 };
 let timeSlowActive = 0;
 let orbitalStrike = null;
@@ -804,12 +804,13 @@ window.addEventListener('keydown', e => {
   // Abilities
   if (e.key === '1' && gameState === 'playing' && abilities.emp.cooldown <= 0) {
     abilities.emp.cooldown = abilities.emp.maxCooldown;
-    // Stun all enemies in radius 300
+    const ewmx = mouse.x + camera.x - screenShake.x, ewmy = mouse.y + camera.y - screenShake.y;
+    // Stun all enemies in radius 300 around cursor
     enemies.forEach(en => {
-      if (Math.hypot(en.x - player.x, en.y - player.y) < 300) en.stunTimer = 120;
+      if (Math.hypot(en.x - ewmx, en.y - ewmy) < 300) en.stunTimer = 120;
     });
-    empRing = { x: player.x, y: player.y, radius: 0, maxRadius: 300, life: 30, maxLife: 30 };
-    SFX.emp(player.x, player.y);
+    empRing = { x: ewmx, y: ewmy, radius: 0, maxRadius: 300, life: 30, maxLife: 30 };
+    SFX.emp(ewmx, ewmy);
     addShake(4);
     notify('EMP BLAST!', '#0ff');
   }
@@ -973,18 +974,22 @@ function update() {
   if (orbitalStrike) {
     orbitalStrike.timer--;
     if (orbitalStrike.timer <= 0) {
-      // Deal damage
-      const dmgMult = [1, 1.15, 1.30, 1.50][upgrades.damage];
+      // Deal damage — instant kill all enemies in range, bosses take 75% max health
       enemies.forEach(en => {
         const d = Math.hypot(en.x - orbitalStrike.x, en.y - orbitalStrike.y);
-        if (d < 80) en.health -= 200 * dmgMult;
+        if (d < 200) {
+          if (en.type === 'boss') {
+            en.health -= en.maxHealth * 0.75;
+          } else {
+            en.health = 0;
+          }
+        }
       });
       spawnExplosion(orbitalStrike.x, orbitalStrike.y, 60);
       addShake(10);
       SFX.orbitalBlast(orbitalStrike.x, orbitalStrike.y);
-      orbitalStrike.timer = -180; // 3 second visual linger
+      orbitalStrike = null; // instant, no linger
     }
-    if (orbitalStrike.timer < -180) orbitalStrike = null;
   }
 
   // EMP ring visual
@@ -1776,7 +1781,7 @@ function draw() {
     if (orbitalStrike.timer > 0) {
       // Targeting reticle
       const pulse = 0.5 + 0.5 * Math.sin(frameCount * 0.2);
-      ctx.beginPath();ctx.arc(orbitalStrike.x, orbitalStrike.y, 80, 0, Math.PI * 2);
+      ctx.beginPath();ctx.arc(orbitalStrike.x, orbitalStrike.y, 200, 0, Math.PI * 2);
       ctx.strokeStyle = `rgba(255,255,0,${0.3 + pulse * 0.4})`;ctx.lineWidth = 2;ctx.setLineDash([8, 4]);ctx.stroke();ctx.setLineDash([]);
       ctx.beginPath();ctx.moveTo(orbitalStrike.x - 20, orbitalStrike.y);ctx.lineTo(orbitalStrike.x + 20, orbitalStrike.y);ctx.stroke();
       ctx.beginPath();ctx.moveTo(orbitalStrike.x, orbitalStrike.y - 20);ctx.lineTo(orbitalStrike.x, orbitalStrike.y + 20);ctx.stroke();
@@ -1787,9 +1792,9 @@ function draw() {
       g.addColorStop(0, `rgba(255,255,200,${beamAlpha * 0.1})`);
       g.addColorStop(1, `rgba(255,255,100,${beamAlpha * 0.8})`);
       ctx.fillStyle = g;
-      ctx.fillRect(orbitalStrike.x - 20 * beamAlpha, 0, 40 * beamAlpha, orbitalStrike.y);
-      ctx.beginPath();ctx.arc(orbitalStrike.x, orbitalStrike.y, 80 * beamAlpha, 0, Math.PI * 2);
-      const rg = ctx.createRadialGradient(orbitalStrike.x, orbitalStrike.y, 0, orbitalStrike.x, orbitalStrike.y, 80 * beamAlpha);
+      ctx.fillRect(orbitalStrike.x - 50 * beamAlpha, 0, 100 * beamAlpha, orbitalStrike.y);
+      ctx.beginPath();ctx.arc(orbitalStrike.x, orbitalStrike.y, 200 * beamAlpha, 0, Math.PI * 2);
+      const rg = ctx.createRadialGradient(orbitalStrike.x, orbitalStrike.y, 0, orbitalStrike.x, orbitalStrike.y, 200 * beamAlpha);
       rg.addColorStop(0, `rgba(255,255,200,${beamAlpha * 0.6})`);rg.addColorStop(1, 'rgba(255,200,0,0)');
       ctx.fillStyle = rg;ctx.fill();
     }
