@@ -6,16 +6,130 @@
 <title>Starship Battle</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { background: #000; overflow: hidden; cursor: crosshair; }
-canvas { display: block; }
+body { background: #000; overflow: hidden; cursor: crosshair; touch-action: none; }
+canvas { display: block; touch-action: none; }
+
+#mobile-controls {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+  display: none;
+  font-family: monospace;
+}
+#mobile-controls.active { display: block; }
+.joystick {
+  position: absolute;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.3);
+  pointer-events: auto;
+  touch-action: none;
+}
+.joystick .stick {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+  margin-top: -28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.16);
+}
+#move-pad { left: 18px; bottom: 18px; }
+#mobile-actions {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 236px;
+  height: 236px;
+  pointer-events: none;
+}
+.action-btn {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.35);
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font: bold 11px/1 monospace;
+  touch-action: none;
+  pointer-events: auto;
+}
+.action-btn:active,
+.action-btn.is-held {
+  background: rgba(120,200,255,0.35);
+}
+#fire-btn {
+  right: 10px;
+  bottom: 10px;
+  width: 96px;
+  height: 96px;
+  font-size: 15px;
+  border-width: 3px;
+  color: #0ff;
+  border-color: rgba(0,255,255,0.75);
+  box-shadow: 0 0 16px rgba(0,255,255,0.25);
+}
+#boost-btn { right: 118px; bottom: 28px; color: #8bf; }
+#ab1-btn { right: 96px; bottom: 90px; color: #0ff; }
+#ab2-btn { right: 52px; bottom: 132px; color: #b4f; }
+#ab3-btn { right: -2px; bottom: 112px; color: #ff4; }
+@media (max-width: 900px), (pointer: coarse) {
+  body { cursor: default; }
+}
+@media (max-width: 420px) {
+  #mobile-actions {
+    width: 208px;
+    height: 208px;
+    right: 6px;
+    bottom: 6px;
+  }
+  .action-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 10px;
+  }
+  #fire-btn {
+    width: 84px;
+    height: 84px;
+    right: 8px;
+    bottom: 8px;
+    font-size: 13px;
+  }
+  #boost-btn { right: 102px; bottom: 24px; }
+  #ab1-btn { right: 82px; bottom: 78px; }
+  #ab2-btn { right: 46px; bottom: 116px; }
+  #ab3-btn { right: 0; bottom: 96px; }
+}
 </style>
 </head>
 <body>
 <canvas id="game"></canvas>
+<div id="mobile-controls" aria-hidden="true">
+  <div id="move-pad" class="joystick">
+    <div class="stick"></div>
+  </div>
+  <div id="mobile-actions">
+    <button id="fire-btn" class="action-btn" type="button">FIRE</button>
+    <button id="boost-btn" class="action-btn" type="button">BOOST</button>
+    <button id="ab1-btn" class="action-btn" type="button">EMP</button>
+    <button id="ab2-btn" class="action-btn" type="button">SLOW</button>
+    <button id="ab3-btn" class="action-btn" type="button">STRIKE</button>
+  </div>
+</div>
 <script>
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
 resize();
 window.addEventListener('resize', resize);
 
@@ -468,7 +582,17 @@ const WEAPON_TYPES = {
 // --- State ---
 let keys = {};
 let mouse = { x: 0, y: 0, down: false };
+const mobileControls = document.getElementById('mobile-controls');
+const isMobileControls = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+const mobileInput = {
+  enabled: isMobileControls,
+  move: { active: false, pointerId: null, x: 0, y: 0 },
+  fire: false,
+  boost: false
+};
 let camera = { x: 0, y: 0 };
+mouse.x = canvas.width * 0.5;
+mouse.y = canvas.height * 0.5;
 let screenShake = { x: 0, y: 0, intensity: 0 };
 let score = 0;
 let gameState = 'playing'; // 'playing','intermission','shopping','won','lost'
@@ -795,37 +919,138 @@ function closestThreat(x, y, range) {
   return best;
 }
 
+function triggerEMP() {
+  if (gameState !== 'playing' || abilities.emp.cooldown > 0) return;
+  abilities.emp.cooldown = abilities.emp.maxCooldown;
+  const ewmx = mouse.x + camera.x - screenShake.x;
+  const ewmy = mouse.y + camera.y - screenShake.y;
+  enemies.forEach(en => {
+    if (Math.hypot(en.x - ewmx, en.y - ewmy) < 300) en.stunTimer = 120;
+  });
+  empRing = { x: ewmx, y: ewmy, radius: 0, maxRadius: 300, life: 30, maxLife: 30 };
+  SFX.emp(ewmx, ewmy);
+  addShake(4);
+  notify('EMP BLAST!', '#0ff');
+}
+
+function triggerTimeSlow() {
+  if (gameState !== 'playing' || abilities.timeSlow.cooldown > 0) return;
+  abilities.timeSlow.cooldown = abilities.timeSlow.maxCooldown;
+  timeSlowActive = 240;
+  SFX.timeSlow();
+  notify('TIME SLOW!', '#b4f');
+}
+
+function triggerOrbitalStrike() {
+  if (gameState !== 'playing' || abilities.orbital.cooldown > 0) return;
+  abilities.orbital.cooldown = abilities.orbital.maxCooldown;
+  const wmx = mouse.x + camera.x - screenShake.x;
+  const wmy = mouse.y + camera.y - screenShake.y;
+  orbitalStrike = { x: wmx, y: wmy, timer: 60 };
+  SFX.orbitalCharge(wmx, wmy);
+  notify('ORBITAL STRIKE INCOMING!', '#ff4');
+}
+
+function syncMobileControls() {
+  if (!mobileInput.enabled) return;
+  const show = gameState === 'playing' && !shopOpen;
+  mobileControls.classList.toggle('active', show);
+}
+
+function setupVirtualStick(padEl, state) {
+  const stickEl = padEl.querySelector('.stick');
+  const maxDist = 40;
+  const deadzone = 0.12;
+
+  function reset() {
+    state.active = false;
+    state.pointerId = null;
+    state.x = 0;
+    state.y = 0;
+    stickEl.style.transform = 'translate(0px, 0px)';
+  }
+
+  function update(clientX, clientY) {
+    const rect = padEl.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let dx = clientX - cx;
+    let dy = clientY - cy;
+    const len = Math.hypot(dx, dy);
+    if (len > maxDist) {
+      dx = (dx / len) * maxDist;
+      dy = (dy / len) * maxDist;
+    }
+    stickEl.style.transform = `translate(${dx}px, ${dy}px)`;
+    state.x = Math.abs(dx / maxDist) < deadzone ? 0 : dx / maxDist;
+    state.y = Math.abs(dy / maxDist) < deadzone ? 0 : dy / maxDist;
+  }
+
+  padEl.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    ensureAudio();
+    state.active = true;
+    state.pointerId = e.pointerId;
+    padEl.setPointerCapture(e.pointerId);
+    update(e.clientX, e.clientY);
+  });
+  padEl.addEventListener('pointermove', e => {
+    if (!state.active || e.pointerId !== state.pointerId) return;
+    e.preventDefault();
+    update(e.clientX, e.clientY);
+  });
+  const release = e => {
+    if (e.pointerId !== state.pointerId) return;
+    reset();
+  };
+  padEl.addEventListener('pointerup', release);
+  padEl.addEventListener('pointercancel', release);
+  padEl.addEventListener('lostpointercapture', () => {
+    if (!state.active) return;
+    reset();
+  });
+}
+
+function setupMobileControls() {
+  if (!mobileInput.enabled) return;
+
+  setupVirtualStick(document.getElementById('move-pad'), mobileInput.move);
+
+  const setHold = (id, key) => {
+    const btn = document.getElementById(id);
+    btn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      ensureAudio();
+      mobileInput[key] = true;
+      btn.classList.add('is-held');
+    });
+    const clear = e => {
+      e.preventDefault();
+      mobileInput[key] = false;
+      btn.classList.remove('is-held');
+    };
+    btn.addEventListener('pointerup', clear);
+    btn.addEventListener('pointercancel', clear);
+    btn.addEventListener('pointerleave', clear);
+  };
+
+  setHold('fire-btn', 'fire');
+  setHold('boost-btn', 'boost');
+  document.getElementById('ab1-btn').addEventListener('pointerdown', e => { e.preventDefault(); ensureAudio(); triggerEMP(); });
+  document.getElementById('ab2-btn').addEventListener('pointerdown', e => { e.preventDefault(); ensureAudio(); triggerTimeSlow(); });
+  document.getElementById('ab3-btn').addEventListener('pointerdown', e => { e.preventDefault(); ensureAudio(); triggerOrbitalStrike(); });
+}
+
+setupMobileControls();
+
 // --- Input ---
 window.addEventListener('keydown', e => {
   keys[e.key.toLowerCase()] = true;
   if (e.key === ' ') e.preventDefault();
   if (e.key === 'r' && (gameState === 'won' || gameState === 'lost')) restartGame();
-  // Abilities
-  if (e.key === '1' && gameState === 'playing' && abilities.emp.cooldown <= 0) {
-    abilities.emp.cooldown = abilities.emp.maxCooldown;
-    const ewmx = mouse.x + camera.x - screenShake.x, ewmy = mouse.y + camera.y - screenShake.y;
-    // Stun all enemies in radius 300 around cursor
-    enemies.forEach(en => {
-      if (Math.hypot(en.x - ewmx, en.y - ewmy) < 300) en.stunTimer = 120;
-    });
-    empRing = { x: ewmx, y: ewmy, radius: 0, maxRadius: 300, life: 30, maxLife: 30 };
-    SFX.emp(ewmx, ewmy);
-    addShake(4);
-    notify('EMP BLAST!', '#0ff');
-  }
-  if (e.key === '2' && gameState === 'playing' && abilities.timeSlow.cooldown <= 0) {
-    abilities.timeSlow.cooldown = abilities.timeSlow.maxCooldown;
-    timeSlowActive = 240; // 4 seconds
-    SFX.timeSlow();
-    notify('TIME SLOW!', '#b4f');
-  }
-  if (e.key === '3' && gameState === 'playing' && abilities.orbital.cooldown <= 0) {
-    abilities.orbital.cooldown = abilities.orbital.maxCooldown;
-    const wmx = mouse.x + camera.x - screenShake.x, wmy = mouse.y + camera.y - screenShake.y;
-    orbitalStrike = { x: wmx, y: wmy, timer: 60 }; // 1 second delay
-    SFX.orbitalCharge(wmx, wmy);
-    notify('ORBITAL STRIKE INCOMING!', '#ff4');
-  }
+  if (e.key === '1') triggerEMP();
+  if (e.key === '2') triggerTimeSlow();
+  if (e.key === '3') triggerOrbitalStrike();
   // Close shop
   if (e.key === 'escape' && shopOpen) {
     shopOpen = false;
@@ -842,6 +1067,19 @@ window.addEventListener('mousedown', e => {
   }
 });
 window.addEventListener('mouseup', e => { if(e.button===0) mouse.down = false; });
+canvas.addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'touch') return;
+  ensureAudio();
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  if (shopOpen) {
+    handleShopClick(e.clientX, e.clientY);
+    return;
+  }
+  if ((gameState === 'won' || gameState === 'lost') && mobileInput.enabled) {
+    restartGame();
+  }
+});
 
 // --- Shop click handler ---
 function getShopLayout() {
@@ -939,6 +1177,7 @@ startGame();
 
 // --- UPDATE ---
 function update() {
+  syncMobileControls();
   if (gameState === 'won' || gameState === 'lost' || shopOpen) return;
   frameCount++;
 
@@ -1004,6 +1243,20 @@ function update() {
   const shieldRegenMult = [1, 1.5, 2.0, 3.0][upgrades.shieldRegen];
   const allyDmgMult = [1, 1.2, 1.4, 1.6][upgrades.allyDamage];
 
+  let mobileMoveStrength = 1;
+  if (mobileInput.enabled && mobileInput.move.active && (mobileInput.move.x || mobileInput.move.y)) {
+    const mx = mobileInput.move.x;
+    const my = mobileInput.move.y;
+    const mag = Math.min(1, Math.hypot(mx, my));
+    if (mag > 0) {
+      const dirX = mx / mag;
+      const dirY = my / mag;
+      mouse.x = player.x + dirX * 420 - camera.x + screenShake.x;
+      mouse.y = player.y + dirY * 420 - camera.y + screenShake.y;
+      mobileMoveStrength = mag;
+    }
+  }
+
   // Aim (computed first so movement is relative to aim direction)
   const wmx=mouse.x+camera.x-screenShake.x, wmy=mouse.y+camera.y-screenShake.y;
   const ta=Math.atan2(wmy-player.y,wmx-player.x);
@@ -1015,7 +1268,13 @@ function update() {
   let fwd=0, strafe=0;
   if(keys['w'])fwd+=1; if(keys['s'])fwd-=1; if(keys['a'])strafe-=1; if(keys['d'])strafe+=1;
   let ax=0, ay=0;
-  if(fwd||strafe){
+  if (mobileInput.enabled && mobileInput.move.active && (mobileInput.move.x || mobileInput.move.y)) {
+    const mLen = Math.hypot(mobileInput.move.x, mobileInput.move.y);
+    if (mLen > 0) {
+      ax = mobileInput.move.x / mLen;
+      ay = mobileInput.move.y / mLen;
+    }
+  } else if(fwd||strafe){
     const aimAngle = player.angle;
     ax += Math.cos(aimAngle) * fwd + Math.cos(aimAngle + Math.PI/2) * strafe;
     ay += Math.sin(aimAngle) * fwd + Math.sin(aimAngle + Math.PI/2) * strafe;
@@ -1023,10 +1282,12 @@ function update() {
   }
 
   const wasBoosting = player.boosting;
-  player.boosting = keys[' '] && player.boost > 0 && (ax||ay);
+  const boostHeld = keys[' '] || (mobileInput.enabled && mobileInput.boost);
+  player.boosting = boostHeld && player.boost > 0 && (ax||ay);
   if(player.boosting && !wasBoosting) SFX.boost();
-  const maxSpd = (player.boosting ? 10 : 5) * speedMult;
-  const accel = 0.35 * speedMult;
+  const analogStrength = mobileInput.enabled ? mobileMoveStrength : 1;
+  const maxSpd = (player.boosting ? 10 : 5) * speedMult * analogStrength;
+  const accel = 0.35 * speedMult * Math.max(0.2, analogStrength);
   if(player.boosting) player.boost=Math.max(0,player.boost-1.5);
   else player.boost=Math.min(player.maxBoost,player.boost+0.25);
 
@@ -1053,7 +1314,7 @@ function update() {
   // Shoot
   if(player.fireCooldown>0)player.fireCooldown--;
   const w = WEAPON_TYPES[player.weapon];
-  if(mouse.down && player.fireCooldown<=0){
+  if((mouse.down || (mobileInput.enabled && mobileInput.fire)) && player.fireCooldown<=0){
     player.fireCooldown = Math.max(1, Math.floor(w.fireRate * fireRateMult));
     fireWeapon(player.x, player.y, player.angle, player.vx, player.vy, player.weapon, true, dmgMult);
     if(player.weapon==='railgun') SFX.railgun(player.x,player.y);
@@ -1824,7 +2085,7 @@ function draw() {
   if(damageFlash>0){ctx.fillStyle=`rgba(255,50,50,${damageFlash*0.04})`;ctx.fillRect(0,0,canvas.width,canvas.height);}
 
   drawHUD();
-  drawMinimap();
+  if (!(mobileInput.enabled && canvas.width < 1000)) drawMinimap();
   drawNotifications();
 
   // Intermission overlay
@@ -1852,7 +2113,7 @@ function draw() {
     ctx.fillText(`Score: ${score}  |  Wave: ${wave}`,canvas.width/2,canvas.height/2+15);
     ctx.fillStyle='#888';ctx.font='14px monospace';
     ctx.fillText(`Teammates: ${allies.length}`,canvas.width/2,canvas.height/2+40);
-    ctx.fillText('Press R to restart',canvas.width/2,canvas.height/2+70);
+    ctx.fillText(mobileInput.enabled ? 'Tap screen to restart' : 'Press R to restart',canvas.width/2,canvas.height/2+70);
     ctx.textAlign='left';
   }
 }
@@ -1910,44 +2171,50 @@ function drawHUD() {
     ctx.fillText(`Next wave in ${Math.ceil(intermissionTimer/60)}s`,objX+4,objY+42);
   }
 
-  // Ability cooldown indicators (bottom center)
-  const abKeys = [
-    { key: '1', name: 'EMP', ab: abilities.emp, color: '#0ff' },
-    { key: '2', name: 'SLOW', ab: abilities.timeSlow, color: '#b4f' },
-    { key: '3', name: 'STRIKE', ab: abilities.orbital, color: '#ff4' }
-  ];
-  const abStartX = canvas.width / 2 - 105;
-  const abY = canvas.height - 60;
-  abKeys.forEach((a, i) => {
-    const ax = abStartX + i * 75;
-    const cdRatio = a.ab.cooldown / a.ab.maxCooldown;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.fillRect(ax, abY, 65, 40);
-    // Cooldown fill
-    if (cdRatio > 0) {
-      ctx.fillStyle = 'rgba(100,100,100,0.4)';
-      ctx.fillRect(ax, abY, 65 * cdRatio, 40);
-    }
-    ctx.strokeStyle = cdRatio <= 0 ? a.color : '#555';
-    ctx.lineWidth = cdRatio <= 0 ? 2 : 1;
-    ctx.strokeRect(ax, abY, 65, 40);
-    ctx.fillStyle = cdRatio <= 0 ? a.color : '#666';
-    ctx.font = 'bold 10px monospace';ctx.textAlign = 'center';
-    ctx.fillText(`[${a.key}]`, ax + 32, abY + 14);
-    ctx.font = '9px monospace';
-    ctx.fillText(a.name, ax + 32, abY + 26);
-    if (cdRatio > 0) {
-      ctx.fillStyle = '#aaa';ctx.font = '8px monospace';
-      ctx.fillText(`${Math.ceil(a.ab.cooldown / 60)}s`, ax + 32, abY + 36);
-    } else {
-      ctx.fillStyle = '#4f4';ctx.font = '8px monospace';
-      ctx.fillText('READY', ax + 32, abY + 36);
-    }
-    ctx.textAlign = 'left';
-  });
+  if (!mobileInput.enabled) {
+    // Ability cooldown indicators (bottom center)
+    const abKeys = [
+      { key: '1', name: 'EMP', ab: abilities.emp, color: '#0ff' },
+      { key: '2', name: 'SLOW', ab: abilities.timeSlow, color: '#b4f' },
+      { key: '3', name: 'STRIKE', ab: abilities.orbital, color: '#ff4' }
+    ];
+    const abStartX = canvas.width / 2 - 105;
+    const abY = canvas.height - 60;
+    abKeys.forEach((a, i) => {
+      const ax = abStartX + i * 75;
+      const cdRatio = a.ab.cooldown / a.ab.maxCooldown;
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(ax, abY, 65, 40);
+      // Cooldown fill
+      if (cdRatio > 0) {
+        ctx.fillStyle = 'rgba(100,100,100,0.4)';
+        ctx.fillRect(ax, abY, 65 * cdRatio, 40);
+      }
+      ctx.strokeStyle = cdRatio <= 0 ? a.color : '#555';
+      ctx.lineWidth = cdRatio <= 0 ? 2 : 1;
+      ctx.strokeRect(ax, abY, 65, 40);
+      ctx.fillStyle = cdRatio <= 0 ? a.color : '#666';
+      ctx.font = 'bold 10px monospace';ctx.textAlign = 'center';
+      ctx.fillText(`[${a.key}]`, ax + 32, abY + 14);
+      ctx.font = '9px monospace';
+      ctx.fillText(a.name, ax + 32, abY + 26);
+      if (cdRatio > 0) {
+        ctx.fillStyle = '#aaa';ctx.font = '8px monospace';
+        ctx.fillText(`${Math.ceil(a.ab.cooldown / 60)}s`, ax + 32, abY + 36);
+      } else {
+        ctx.fillStyle = '#4f4';ctx.font = '8px monospace';
+        ctx.fillText('READY', ax + 32, abY + 36);
+      }
+      ctx.textAlign = 'left';
+    });
+  }
 
   ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='9px monospace';
-  ctx.fillText('WASD Move | Mouse Aim | Click Shoot | Space Boost | 1/2/3 Abilities',pad,canvas.height-10);
+  if (mobileInput.enabled) {
+    ctx.fillText('Left stick: direction + speed | FIRE/BOOST/EMP/SLOW/STRIKE',pad,canvas.height-10);
+  } else {
+    ctx.fillText('WASD Move | Mouse Aim | Click Shoot | Space Boost | 1/2/3 Abilities',pad,canvas.height-10);
+  }
 }
 
 function drawMinimap() {

@@ -198,6 +198,8 @@ h3 { font-size: 1.1rem; }
   color: var(--accent);
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .card-thumb::after {
