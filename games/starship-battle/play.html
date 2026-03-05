@@ -507,8 +507,7 @@ const UPGRADE_DEFS = [
   { key: 'damage',      name: 'Damage',          desc: ['+15% Dmg','+30%','+50%'],             costs: [400,700,1200] },
   { key: 'moveSpeed',   name: 'Move Speed',      desc: ['+10% Speed','+20%','+30%'],           costs: [300,500,800] },
   { key: 'shieldRegen', name: 'Shield Regen',    desc: ['+50% Regen','+100%','+200%'],         costs: [350,600,1000] },
-  { key: 'allyDamage',  name: 'Ally Damage',     desc: ['+20% Ally Dmg','+40%','+60%'],        costs: [300,500,800] },
-  { key: 'maxAllies',   name: 'Max Allies',      desc: ['+1 Ally Cap','+2','+3'],              costs: [500,800,1200] }
+  { key: 'allyDamage',  name: 'Ally Damage',     desc: ['+20% Ally Dmg','+40%','+60%'],        costs: [300,500,800] }
 ];
 
 // Ally shop items (repeatable purchases, not level-based)
@@ -623,7 +622,8 @@ const ALLY_TYPES = {
 };
 
 let allyIdCounter = 0;
-function spawnAlly(x, y, source, type) {
+let deadAllyQueue = []; // ally types to respawn after wave ends
+function spawnAlly(x, y, source, type, silent) {
   type = type || 'fighter';
   const cfg = ALLY_TYPES[type];
   const id = allyIdCounter++;
@@ -635,8 +635,7 @@ function spawnAlly(x, y, source, type) {
     state: 'follow', targetEnemy: null,
     source: source || 'start', type
   });
-  notify(`${cfg.name} joined!`, '#4f4');
-  SFX.allyJoin();
+  if (!silent) { notify(`${cfg.name} joined!`, '#4f4'); SFX.allyJoin(); }
 }
 
 // Max ally cap (base 2, increased by upgrades)
@@ -891,8 +890,7 @@ function handleShopClick(mx, my) {
   ALLY_SHOP.forEach((def, i) => {
     const cx = startX + i * (cardW + gap), cy = allyRowY;
     if (mx >= cx && mx <= cx + cardW && my >= cy && my <= cy + cardH) {
-      const maxA = getMaxAllies();
-      if (allies.length < maxA && score >= def.cost) {
+      if (allies.length < 10 && score >= def.cost) {
         score -= def.cost;
         spawnAlly(player.x + (Math.random() - 0.5) * 60, player.y + (Math.random() - 0.5) * 60, 'shop', def.type);
         SFX.purchaseUpgrade();
@@ -1438,7 +1436,8 @@ function update() {
     if(a.health<=0){
       spawnExplosion(a.x,a.y,20);spawnDebris(a.x,a.y,5);
       SFX.allyDeath(a.x,a.y);
-      notify('Teammate lost!','#f44');
+      notify('Teammate down — respawning next wave!','#f84');
+      deadAllyQueue.push(a.type);
       return false;
     }
     return true;
@@ -1458,8 +1457,14 @@ function update() {
       // Full HP/shield restore between waves
       player.health = player.maxHealth;
       player.shield = player.maxShield;
-      // Also heal allies
+      // Heal surviving allies
       allies.forEach(a => { a.health = a.maxHealth; });
+      // Respawn allies that died this wave
+      deadAllyQueue.forEach(type => {
+        spawnAlly(player.x + (Math.random()-0.5)*120, player.y + (Math.random()-0.5)*120, 'respawn', type, true);
+      });
+      if (deadAllyQueue.length > 0) notify(`${deadAllyQueue.length} teammate(s) respawned!`, '#8f8');
+      deadAllyQueue = [];
     }
   }
 
@@ -1985,7 +1990,7 @@ function drawShop() {
   ctx.fillStyle = '#ff0';ctx.font = 'bold 24px monospace';
   ctx.fillText('UPGRADE SHOP', canvas.width / 2, startY - 20);
   ctx.fillStyle = '#aaa';ctx.font = '13px monospace';
-  ctx.fillText(`Score: ${score}  |  Allies: ${allies.length}/${getMaxAllies()}`, canvas.width / 2, startY - 4);
+  ctx.fillText(`Score: ${score}  |  Allies: ${allies.length}/10`, canvas.width / 2, startY - 4);
 
   // Upgrade cards
   UPGRADE_DEFS.forEach((def, i) => {
@@ -2031,10 +2036,9 @@ function drawShop() {
   ctx.fillText('RECRUIT ALLIES', canvas.width / 2, allyRowY - 10);
 
   // Ally purchase cards
-  const maxA = getMaxAllies();
   ALLY_SHOP.forEach((def, i) => {
     const cx = startX + i * (cardW + gap), cy = allyRowY;
-    const canBuy = allies.length < maxA && score >= def.cost;
+    const canBuy = allies.length < 10 && score >= def.cost;
 
     ctx.fillStyle = canBuy ? 'rgba(20,35,20,0.9)' : 'rgba(20,20,30,0.9)';
     ctx.fillRect(cx, cy, cardW, cardH);
@@ -2066,7 +2070,7 @@ function drawShop() {
     ctx.fillStyle = '#888';ctx.font = '9px monospace';
     ctx.fillText(`HP:${cfg.health} DMG:${cfg.damage} SPD:${cfg.speed}`, cx + cardW / 2, cy + 84);
 
-    if (allies.length >= maxA) {
+    if (allies.length >= 10) {
       ctx.fillStyle = '#f44';ctx.font = 'bold 10px monospace';
       ctx.fillText('ROSTER FULL', cx + cardW / 2, cy + 102);
     } else {
@@ -2112,7 +2116,7 @@ function restartGame() {
   player.weapon='normal';player.weaponAmmo=-1;player.weaponTimer=0;
   score=0;gameState='playing';frameCount=0;damageFlash=0;screenShake.intensity=0;
   projectiles=[];particles=[];enemies=[];trails=[];debris=[];allies=[];notifications=[];
-  allyIdCounter=0;
+  allyIdCounter=0;deadAllyQueue=[];
   wave=0;waveEnemiesLeft=0;waveActive=false;intermissionTimer=0;shopOpen=false;
   abilities.emp.cooldown=0;abilities.timeSlow.cooldown=0;abilities.orbital.cooldown=0;
   timeSlowActive=0;orbitalStrike=null;empRing=null;
