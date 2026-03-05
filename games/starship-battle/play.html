@@ -1314,7 +1314,8 @@ function update() {
   // Shoot
   if(player.fireCooldown>0)player.fireCooldown--;
   const w = WEAPON_TYPES[player.weapon];
-  if((mouse.down || (mobileInput.enabled && mobileInput.fire)) && player.fireCooldown<=0){
+  const fireHeld = mobileInput.enabled ? mobileInput.fire : mouse.down;
+  if(fireHeld && player.fireCooldown<=0){
     player.fireCooldown = Math.max(1, Math.floor(w.fireRate * fireRateMult));
     fireWeapon(player.x, player.y, player.angle, player.vx, player.vy, player.weapon, true, dmgMult);
     if(player.weapon==='railgun') SFX.railgun(player.x,player.y);
