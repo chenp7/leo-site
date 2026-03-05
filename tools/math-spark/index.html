@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MathSpark 🌟 Fun Maths for Kids!</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f8ff;--white:#fff;--text:#1a1a2e;--muted:#6b7280;
+  --green:#22c55e;--red:#ef4444;--orange:#f97316;--blue:#3b82f6;
+  --purple:#8b5cf6;--yellow:#eab308;--pink:#ec4899;--teal:#14b8a6;
+  --shadow:0 4px 20px rgba(0,0,0,.09);--shadow-lg:0 12px 40px rgba(0,0,0,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(circle at 8% 12%,rgba(234,179,8,.18) 0%,transparent 36%),
+  radial-gradient(circle at 93% 20%,rgba(236,72,153,.14) 0%,transparent 34%),
+  radial-gradient(circle at 52% 90%,rgba(59,130,246,.14) 0%,transparent 34%),
+  radial-gradient(circle at 82% 66%,rgba(20,184,166,.12) 0%,transparent 30%);}
+.stars-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.star{position:absolute;animation:floatStar linear infinite;opacity:.18;}
+@keyframes floatStar{0%{transform:translateY(110vh) rotate(0);opacity:0}10%{opacity:.18}90%{opacity:.18}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:14px 14px 60px;}
+
+/* HEADER */
+header{text-align:center;padding:24px 0 14px;animation:popIn .5s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.85) translateY(-14px)}to{opacity:1;transform:scale(1)}}
+.mascot{font-size:3rem;display:block;animation:wiggle 3s ease-in-out infinite;}
+@keyframes wiggle{0%,100%{transform:rotate(-5deg)}25%{transform:rotate(5deg) scale(1.06)}50%{transform:rotate(-3deg)}75%{transform:rotate(4deg)}}
+.logo{font-family:'Baloo 2',cursive;font-size:clamp(2.4rem,6vw,3.8rem);font-weight:800;line-height:1;margin-bottom:3px;
+  background:linear-gradient(135deg,#f97316,#ef4444 40%,#8b5cf6 75%,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.tagline{font-size:.95rem;font-weight:700;color:var(--muted);}
+
+/* BREADCRUMB */
+.bc{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:18px;font-weight:700;font-size:.86rem;color:var(--muted);}
+.bc .crumb{cursor:pointer;color:var(--blue);text-decoration:underline;text-underline-offset:3px;}
+.bc .crumb:hover{color:var(--orange);}
+.bc .sep{color:#d1d5db;}
+.bc .cur{color:var(--text);}
+
+/* SECTION LABEL */
+.sec-lbl{font-family:'Baloo 2',cursive;font-size:1.38rem;font-weight:700;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
+/* YEAR GRID */
+.year-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;margin-bottom:24px;}
+.yr-btn{border-radius:18px;border:3px solid transparent;padding:13px 8px;cursor:pointer;font-family:'Baloo 2',cursive;font-weight:700;font-size:.92rem;color:#fff;text-align:center;transition:all .2s;box-shadow:0 4px 14px rgba(0,0,0,.12);}
+.yr-btn:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.yr-btn .ye{font-size:1.7rem;display:block;margin-bottom:3px;}
+.yr-btn .yl{font-size:.72rem;opacity:.92;display:block;}
+.yr-btn[data-yr="1"]{background:linear-gradient(135deg,#fb7185,#ef4444);}
+.yr-btn[data-yr="2"]{background:linear-gradient(135deg,#fb923c,#f97316);}
+.yr-btn[data-yr="3"]{background:linear-gradient(135deg,#facc15,#eab308);}
+.yr-btn[data-yr="4"]{background:linear-gradient(135deg,#4ade80,#22c55e);}
+.yr-btn[data-yr="5"]{background:linear-gradient(135deg,#60a5fa,#3b82f6);}
+.yr-btn[data-yr="6"]{background:linear-gradient(135deg,#a78bfa,#8b5cf6);}
+
+/* TOPIC CARDS */
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px;margin-bottom:8px;}
+.topic-card{background:#fff;border:3px solid #e5e7eb;border-radius:20px;padding:18px 10px 14px;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-weight:800;font-size:.92rem;color:var(--text);transition:all .2s;box-shadow:0 3px 12px rgba(0,0,0,.07);position:relative;overflow:hidden;}
+.topic-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:var(--tc,#e5e7eb);transition:height .2s;}
+.topic-card:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(0,0,0,.12);border-color:var(--tc,#3b82f6);}
+.topic-card:hover::after{height:6px;}
+.topic-card .te{font-size:2.3rem;display:block;margin-bottom:7px;}
+.topic-card .tl{display:block;margin-bottom:3px;}
+.topic-card .td{font-size:.74rem;font-weight:600;color:var(--muted);display:block;}
+
+/* IXL-STYLE SCORE BADGE ON TOPIC CARD */
+.topic-score-badge{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;font-family:'Baloo 2',cursive;border:2.5px solid currentColor;background:#fff;}
+.topic-score-badge.zero{color:#d1d5db;border-color:#d1d5db;}
+.topic-score-badge.low{color:#f97316;border-color:#f97316;}
+.topic-score-badge.mid{color:#eab308;border-color:#eab308;}
+.topic-score-badge.high{color:#22c55e;border-color:#22c55e;}
+.topic-score-badge.max{color:#8b5cf6;border-color:#8b5cf6;background:linear-gradient(135deg,#ede9fe,#fff);}
+
+/* TASK CARDS */
+.task-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(218px,1fr));gap:11px;margin-bottom:22px;}
+.task-card{background:#fff;border:3px solid #e5e7eb;border-radius:20px;padding:18px 16px;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .22s;box-shadow:0 3px 12px rgba(0,0,0,.07);display:flex;align-items:flex-start;gap:13px;position:relative;overflow:hidden;}
+.task-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--tc,#3b82f6);transition:width .2s;}
+.task-card:hover{transform:translateY(-4px);box-shadow:0 10px 28px rgba(0,0,0,.12);border-color:var(--tc,#3b82f6);}
+.task-card:hover::before{width:8px;}
+.task-icon{font-size:1.9rem;flex-shrink:0;margin-top:2px;}
+.task-name{font-weight:800;font-size:.97rem;color:var(--text);margin-bottom:3px;}
+.task-desc{font-size:.78rem;font-weight:600;color:var(--muted);line-height:1.4;}
+
+/* IXL SMART SCORE BAR ON TASK CARD */
+.task-score-row{display:flex;align-items:center;gap:8px;margin-top:9px;}
+.task-score-track{flex:1;height:8px;background:#e5e7eb;border-radius:100px;overflow:hidden;}
+.task-score-fill{height:100%;border-radius:100px;transition:width .6s cubic-bezier(.34,1.56,.64,1);}
+.task-score-num{font-family:'Baloo 2',cursive;font-size:.82rem;font-weight:700;min-width:32px;text-align:right;}
+
+/* ── IXL SMARTSCORE GAUGE (in quiz) ── */
+.smartscore-wrap{background:#fff;border-radius:20px;padding:14px 20px;margin-bottom:16px;box-shadow:var(--shadow);display:flex;align-items:center;gap:18px;}
+.ss-gauge-outer{position:relative;width:64px;height:64px;flex-shrink:0;}
+.ss-svg{width:64px;height:64px;transform:rotate(-90deg);}
+.ss-track{fill:none;stroke:#e5e7eb;stroke-width:7;}
+.ss-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .7s cubic-bezier(.34,1.56,.64,1),stroke .4s;}
+.ss-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.ss-num{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:800;line-height:1;}
+.ss-sub{font-size:.6rem;font-weight:700;color:var(--muted);}
+.ss-info{flex:1;}
+.ss-title{font-family:'Baloo 2',cursive;font-weight:700;font-size:1rem;margin-bottom:2px;}
+.ss-detail{font-size:.8rem;font-weight:600;color:var(--muted);line-height:1.5;}
+.ss-stars{font-size:.9rem;letter-spacing:2px;}
+.ss-target{font-size:.75rem;font-weight:800;padding:4px 12px;border-radius:100px;background:#ede9fe;color:#8b5cf6;display:inline-block;margin-top:4px;}
+
+/* PROGRESS BAR (question count) */
+.prog-wrap{background:#fff;border-radius:14px;padding:10px 16px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
+.prog-track{flex:1;height:10px;background:#e5e7eb;border-radius:100px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#fbbf24,#f97316);border-radius:100px;transition:width .5s ease;}
+.prog-txt{font-weight:800;font-size:.85rem;color:var(--muted);white-space:nowrap;}
+
+/* Q CARD */
+.q-card{background:#fff;border-radius:24px;padding:26px 22px;box-shadow:var(--shadow-lg);margin-bottom:16px;animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+@keyframes cardIn{from{opacity:0;transform:scale(.9) translateY(16px)}to{opacity:1;transform:scale(1)}}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,#f97316,#facc15,#22c55e,#3b82f6,#8b5cf6);}
+.q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:6px;}
+.q-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:100px;font-weight:800;font-size:.8rem;background:#fff7ed;color:var(--orange);border:2px solid #fed7aa;}
+.q-combo{font-weight:800;font-size:.85rem;color:#fff;background:var(--orange);padding:4px 12px;border-radius:100px;display:none;}
+.q-combo.show{display:inline-block;animation:popIn .3s ease;}
+.q-text{font-family:'Baloo 2',cursive;font-size:clamp(1.3rem,3.8vw,1.85rem);font-weight:700;color:var(--text);line-height:1.35;margin-bottom:22px;text-align:center;}
+
+/* OPTIONS */
+.opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:460px){.opts-grid{grid-template-columns:1fr;}}
+.opt{background:#f8faff;border:3px solid #e5e7eb;border-radius:15px;padding:14px 13px;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:.98rem;color:var(--text);transition:all .18s;display:flex;align-items:center;gap:10px;text-align:left;}
+.opt:hover:not(:disabled){border-color:var(--blue);background:#eff6ff;transform:scale(1.025);}
+.opt.correct{border-color:var(--green);background:#f0fdf4;animation:cpop .35s ease;}
+.opt.wrong{border-color:var(--red);background:#fef2f2;}
+.opt:disabled{cursor:default;}
+@keyframes cpop{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
+.ok{width:30px;height:30px;border-radius:8px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.82rem;flex-shrink:0;transition:background .2s,color .2s;}
+.opt.correct .ok{background:var(--green);color:#fff;}
+.opt.wrong .ok{background:var(--red);color:#fff;}
+
+/* INPUT */
+.inp-row{display:flex;gap:9px;align-items:stretch;}
+.ans-inp{flex:1;background:#f8faff;border:3px solid #e5e7eb;border-radius:15px;padding:15px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text);outline:none;text-align:center;transition:border-color .2s,box-shadow .2s;}
+.ans-inp:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(59,130,246,.13);}
+.ans-inp.correct{border-color:var(--green);background:#f0fdf4;}
+.ans-inp.wrong{border-color:var(--red);background:#fef2f2;}
+.chk-btn{background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:15px;padding:15px 20px;font-family:'Baloo 2',cursive;font-weight:700;font-size:1rem;color:#fff;cursor:pointer;transition:all .18s;white-space:nowrap;box-shadow:0 4px 14px rgba(59,130,246,.28);}
+.chk-btn:hover{transform:scale(1.04);}
+.chk-btn:disabled{opacity:.5;cursor:default;transform:none;}
+
+/* FEEDBACK */
+.fb{margin-top:16px;border-radius:16px;padding:16px 20px;display:none;}
+.fb.show{display:block;animation:popIn .28s ease;}
+.fb.ok-fb{background:#f0fdf4;border:3px solid #86efac;}
+.fb.ng-fb{background:#fef2f2;border:3px solid #fca5a5;}
+.fb-head{font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:700;margin-bottom:6px;}
+.fb.ok-fb .fb-head{color:#16a34a;}
+.fb.ng-fb .fb-head{color:#dc2626;}
+.fb-body{font-weight:600;font-size:.9rem;color:#374151;line-height:1.6;}
+.ai-btn{display:inline-flex;align-items:center;gap:5px;margin-top:11px;padding:8px 15px;background:#fff;border:2px solid #8b5cf6;border-radius:100px;color:#8b5cf6;font-family:'Nunito',sans-serif;font-weight:800;font-size:.84rem;cursor:pointer;transition:all .18s;}
+.ai-btn:hover{background:#f5f3ff;transform:scale(1.03);}
+.ai-box{margin-top:11px;background:#fff;border:2px solid #c4b5fd;border-radius:13px;padding:13px;font-size:.9rem;font-weight:600;line-height:1.7;color:#374151;display:none;}
+.ai-box.show{display:block;animation:popIn .28s ease;}
+.ai-lbl{font-family:'Baloo 2',cursive;font-weight:700;font-size:.9rem;color:#8b5cf6;margin-bottom:6px;}
+.dots span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#8b5cf6;margin:0 2px;animation:db 1.2s infinite;}
+.dots span:nth-child(2){animation-delay:.2s;}
+.dots span:nth-child(3){animation-delay:.4s;}
+@keyframes db{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
+
+/* NEXT BTN */
+.next-btn{display:none;width:100%;margin-top:13px;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:17px;font-family:'Baloo 2',cursive;font-size:1.2rem;font-weight:700;color:#fff;cursor:pointer;transition:all .18s;box-shadow:0 4px 16px rgba(34,197,94,.3);}
+.next-btn.show{display:block;animation:popIn .28s ease;}
+.next-btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(34,197,94,.4);}
+
+/* ── IXL WIN SCREEN ── */
+.win-screen{background:#fff;border-radius:24px;padding:40px 28px;text-align:center;box-shadow:var(--shadow-lg);display:none;}
+.win-screen.show{display:block;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);}
+.win-mascot{font-size:4.5rem;display:block;margin-bottom:10px;animation:wiggle 2s infinite;}
+.win-score-big{font-family:'Baloo 2',cursive;font-size:5.5rem;font-weight:800;line-height:1;
+  background:linear-gradient(135deg,#f97316,#ef4444 50%,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.win-score-lbl{font-size:1rem;font-weight:700;color:var(--muted);margin-bottom:8px;}
+.win-stars{font-size:2.2rem;letter-spacing:5px;margin-bottom:14px;}
+.win-msg{font-size:1rem;font-weight:800;padding:13px 20px;border-radius:14px;background:#fefce8;color:#a16207;border:2px solid #fde047;margin-bottom:10px;}
+.win-stats-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:24px;}
+.win-stat{background:#f9fafb;border:2px solid #e5e7eb;border-radius:14px;padding:12px 20px;text-align:center;}
+.win-stat .wsl{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.win-stat .wsv{font-family:'Baloo 2',cursive;font-size:1.6rem;font-weight:800;color:var(--text);}
+.win-btns{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+.wbtn-main{background:linear-gradient(135deg,#f97316,#ef4444);border:none;border-radius:16px;padding:14px 30px;font-family:'Baloo 2',cursive;font-size:1.15rem;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 5px 18px rgba(239,68,68,.3);transition:all .18s;}
+.wbtn-main:hover{transform:scale(1.05);}
+.wbtn-sec{background:#fff;border:3px solid #e5e7eb;border-radius:16px;padding:12px 22px;font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .18s;}
+.wbtn-sec:hover{border-color:var(--blue);color:var(--blue);transform:scale(1.03);}
+
+/* CONFETTI */
+.cfetti{position:fixed;pointer-events:none;z-index:999;font-size:1.8rem;animation:cfly 1.3s ease forwards;}
+@keyframes cfly{0%{opacity:1;transform:translate(0,0) rotate(0) scale(1)}100%{opacity:0;transform:var(--fly) rotate(540deg) scale(.2)}}
+
+/* IXL SCORE COLOR HELPER */
+.score-0{color:#9ca3af;} .score-low{color:#f97316;} .score-mid{color:#eab308;} .score-high{color:#22c55e;} .score-max{color:#8b5cf6;}
+.fill-0{background:#d1fae5;} .fill-low{background:linear-gradient(90deg,#fed7aa,#fb923c);} .fill-mid{background:linear-gradient(90deg,#fef08a,#eab308);} .fill-high{background:linear-gradient(90deg,#86efac,#22c55e);} .fill-max{background:linear-gradient(90deg,#c4b5fd,#8b5cf6);}
+.stroke-0{stroke:#d1d5db;} .stroke-low{stroke:#f97316;} .stroke-mid{stroke:#eab308;} .stroke-high{stroke:#22c55e;} .stroke-max{stroke:#8b5cf6;}
+
+@media(max-width:600px){.year-grid{grid-template-columns:repeat(3,1fr);}.win-stats-row{gap:8px;}}
+</style>
+</head>
+<body>
+<div class="stars-bg" id="stars-bg"></div>
+<div class="wrap">
+
+  <header>
+    <span class="mascot">🦉</span>
+    <div class="logo">MathSpark!</div>
+    <div class="tagline">🌟 The fun way to learn maths! 🌟</div>
+  </header>
+
+  <!-- SCREEN: YEAR -->
+  <div id="scr-year">
+    <div class="sec-lbl">🎓 Choose Your Year Level</div>
+    <div class="year-grid">
+      <button class="yr-btn" data-yr="1"><span class="ye">🌱</span>Year 1<span class="yl">Ages 6–7</span></button>
+      <button class="yr-btn" data-yr="2"><span class="ye">🌻</span>Year 2<span class="yl">Ages 7–8</span></button>
+      <button class="yr-btn" data-yr="3"><span class="ye">⭐</span>Year 3<span class="yl">Ages 8–9</span></button>
+      <button class="yr-btn" data-yr="4"><span class="ye">🚀</span>Year 4<span class="yl">Ages 9–10</span></button>
+      <button class="yr-btn" data-yr="5"><span class="ye">💡</span>Year 5<span class="yl">Ages 10–11</span></button>
+      <button class="yr-btn" data-yr="6"><span class="ye">🏆</span>Year 6<span class="yl">Ages 11–12</span></button>
+    </div>
+  </div>
+
+  <!-- SCREEN: TOPIC -->
+  <div id="scr-topic" style="display:none">
+    <div class="bc"><span class="crumb" onclick="goYear()">🏠 Home</span><span class="sep">›</span><span class="cur" id="bc-yr"></span></div>
+    <div class="sec-lbl">📚 Choose a Topic</div>
+    <div class="topic-grid" id="topic-grid"></div>
+  </div>
+
+  <!-- SCREEN: TASK -->
+  <div id="scr-task" style="display:none">
+    <div class="bc"><span class="crumb" onclick="goYear()">🏠 Home</span><span class="sep">›</span><span class="crumb" onclick="goTopic()" id="bc-topic-yr"></span><span class="sep">›</span><span class="cur" id="bc-topic-name"></span></div>
+    <div class="sec-lbl" id="task-lbl">🎯 Choose a Task</div>
+    <div class="task-grid" id="task-grid"></div>
+  </div>
+
+  <!-- SCREEN: QUIZ -->
+  <div id="scr-quiz" style="display:none">
+    <div class="bc"><span class="crumb" onclick="goYear()">🏠</span><span class="sep">›</span><span class="crumb" onclick="goTopic()" id="bc-q-yr"></span><span class="sep">›</span><span class="crumb" onclick="goTask()" id="bc-q-topic"></span><span class="sep">›</span><span class="cur" id="bc-q-task"></span></div>
+
+    <!-- IXL SMARTSCORE -->
+    <div class="smartscore-wrap" id="ss-wrap">
+      <div class="ss-gauge-outer">
+        <svg class="ss-svg" viewBox="0 0 64 64">
+          <circle class="ss-track" cx="32" cy="32" r="26"/>
+          <circle class="ss-fill stroke-0" id="ss-circle" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="163.4"/>
+        </svg>
+        <div class="ss-label">
+          <span class="ss-num score-0" id="ss-num">0</span>
+          <span class="ss-sub">SmartScore</span>
+        </div>
+      </div>
+      <div class="ss-info">
+        <div class="ss-title" id="ss-title">Just getting started!</div>
+        <div class="ss-detail" id="ss-detail">Answer questions to build your score ✨</div>
+        <div class="ss-stars" id="ss-stars"></div>
+        <div class="ss-target" id="ss-target">🎯 Goal: Reach 100!</div>
+      </div>
+    </div>
+
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      <div class="prog-txt" id="prog-txt">Q 1</div>
+    </div>
+
+    <div class="q-card" id="q-card">
+      <div class="q-top">
+        <span class="q-badge" id="q-badge">📚 Topic</span>
+        <span class="q-combo" id="q-combo">🔥 Combo!</span>
+      </div>
+      <div class="q-text" id="q-text">Loading...</div>
+      <div id="opts-area"></div>
+      <div class="fb" id="fb">
+        <div class="fb-head" id="fb-head"></div>
+        <div class="fb-body" id="fb-body"></div>
+        <button class="ai-btn" onclick="getAI()" id="ai-btn">✨ Ask the AI Tutor!</button>
+        <div class="ai-box" id="ai-box"><div class="ai-lbl">🤖 AI Tutor says:</div><div id="ai-content"></div></div>
+      </div>
+    </div>
+    <button class="next-btn" id="next-btn" onclick="nextQ()">Next Question ➡️</button>
+  </div>
+
+  <!-- SCREEN: WIN -->
+  <div id="scr-win" style="display:none">
+    <div class="win-screen show" id="win-card">
+      <span class="win-mascot" id="win-mascot">🏆</span>
+      <div class="win-stars" id="win-stars">⭐⭐⭐</div>
+      <div class="win-score-big" id="win-score">100</div>
+      <div class="win-score-lbl">SmartScore</div>
+      <div class="win-msg" id="win-msg">Amazing work!</div>
+      <div class="win-stats-row">
+        <div class="win-stat"><div class="wsl">Correct</div><div class="wsv" id="ws-correct">0</div></div>
+        <div class="win-stat"><div class="wsl">Questions</div><div class="wsv" id="ws-total">0</div></div>
+        <div class="win-stat"><div class="wsl">Best Combo</div><div class="wsv" id="ws-combo">0🔥</div></div>
+        <div class="win-stat"><div class="wsl">Accuracy</div><div class="wsv" id="ws-acc">0%</div></div>
+      </div>
+      <div class="win-btns">
+        <button class="wbtn-main" onclick="replayTask()">🔄 Play Again!</button>
+        <button class="wbtn-sec" onclick="goTask()">📋 Other Tasks</button>
+        <button class="wbtn-sec" onclick="goTopic()">📚 Topics</button>
+        <button class="wbtn-sec" onclick="goYear()">🏠 Home</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ── STARS BG ──
+const sBg=document.getElementById('stars-bg');
+['⭐','✨','🌟','💫','🔢','➕','✖️','🎯','🍕','📐','💯','❓'].forEach(e=>{
+  for(let j=0;j<2;j++){const s=document.createElement('div');s.className='star';s.textContent=e;
+  s.style.cssText=`left:${Math.random()*100}%;font-size:${.7+Math.random()*1}rem;animation-duration:${9+Math.random()*13}s;animation-delay:${-Math.random()*18}s;`;sBg.appendChild(s);}
+});
+
+// ── IXL SMARTSCORE ENGINE ──────────────────────────────────────────────
+// Like IXL: correct → +points (more for combos), wrong → −points (hurts more at high scores)
+// Score clamped 0–100. Continuous — questions keep coming until score hits 100.
+// Progress bar shows question count; score gauge is the main "win" indicator.
+
+const CIRCUM = 2*Math.PI*26; // ~163.4
+
+let smartScore = 0;   // 0–100
+let combo = 0;        // consecutive corrects
+let bestCombo = 0;
+let qTotal = 0;       // questions answered
+let qCorrect = 0;
+let answered = false;
+let curQ = null;
+let selYear=null, selTopic=null, selTask=null;
+// per-task high scores stored in memory
+const topicScores = {}; // key: topicId → best smartScore
+const taskScores  = {}; // key: taskId  → best smartScore
+
+function scoreClass(s){
+  if(s===0) return '0';
+  if(s<40) return 'low';
+  if(s<70) return 'mid';
+  if(s<100) return 'high';
+  return 'max';
+}
+function fillClass(s){return 'fill-'+scoreClass(s);}
+function strokeClass(s){return 'stroke-'+scoreClass(s);}
+
+// Calculate score delta like IXL:
+// Correct: base +12, +3 per combo bonus, max +24
+// Wrong: -8 at low scores, up to -18 at high scores (harder to recover)
+function calcDelta(correct, score, comboLen){
+  if(correct){
+    const base = 12;
+    const comboBonus = Math.min(comboLen*3, 12);
+    return base + comboBonus;
+  } else {
+    const penalty = 8 + Math.round((score/100)*10);
+    return -penalty;
+  }
+}
+
+function updateSmartScore(correct){
+  const delta = calcDelta(correct, smartScore, combo);
+  smartScore = Math.max(0, Math.min(100, smartScore + delta));
+  renderGauge();
+}
+
+function renderGauge(){
+  const s = Math.round(smartScore);
+  const sc = scoreClass(s);
+  const offset = CIRCUM * (1 - s/100);
+  const circle = document.getElementById('ss-circle');
+  circle.style.strokeDashoffset = offset;
+  circle.className = 'ss-fill '+strokeClass(s);
+
+  const numEl = document.getElementById('ss-num');
+  numEl.textContent = s;
+  numEl.className = 'ss-num score-'+sc;
+
+  const titleEl = document.getElementById('ss-title');
+  const detailEl = document.getElementById('ss-detail');
+  const starsEl = document.getElementById('ss-stars');
+  const targetEl = document.getElementById('ss-target');
+
+  if(s===0){titleEl.textContent='Just getting started!';starsEl.textContent='';}
+  else if(s<20){titleEl.textContent='Warming up! 🌱';starsEl.textContent='⭐';}
+  else if(s<40){titleEl.textContent='Getting there! 💪';starsEl.textContent='⭐⭐';}
+  else if(s<60){titleEl.textContent='Doing well! 🌟';starsEl.textContent='⭐⭐⭐';}
+  else if(s<80){titleEl.textContent='Almost there! 🔥';starsEl.textContent='⭐⭐⭐⭐';}
+  else if(s<100){titleEl.textContent='So close! Keep going! 🚀';starsEl.textContent='⭐⭐⭐⭐⭐';}
+  else{titleEl.textContent='PERFECT! You crushed it! 🏆';starsEl.textContent='🌟🌟🌟';}
+
+  if(combo>1){detailEl.textContent=`🔥 ${combo} in a row! +${Math.min(combo*3,12)} combo bonus!`;}
+  else if(s===100){detailEl.textContent='You reached 100! Incredible! 🎊';}
+  else{detailEl.textContent=`${100-s} more points to reach 100!`;}
+
+  const remaining = 100-s;
+  if(s<100) targetEl.textContent=`🎯 ${remaining} to go — keep answering!`;
+  else targetEl.textContent='🏆 SmartScore 100 achieved!';
+  targetEl.style.background = s>=100?'#fef9c3':s>=70?'#dcfce7':'#ede9fe';
+  targetEl.style.color = s>=100?'#a16207':s>=70?'#15803d':'#7c3aed';
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────
+const DATA = {
+1:{color:'#ef4444',topics:[
+  {id:'add1',label:'Adding',emoji:'➕',color:'#f97316',tasks:[
+    {id:'add1_bonds',name:'Number Bonds to 10 & 20',desc:'Pairs that make 10 or 20',icon:'🔟',questions:[
+      {q:"What goes with 7 to make 10? (7 + ? = 10)",type:"mc",opts:["2","4","3","5"],ans:"3",exp:"7 + 3 = 10! Number bonds to 10 are super useful! 🌟"},
+      {q:"What is 9 + 4?",type:"mc",opts:["12","14","11","13"],ans:"13",exp:"9 + 4 = 13. Try: 9+1=10, then 10+3=13!"},
+      {q:"What goes with 13 to make 20? (13 + ? = 20)",type:"input",ans:"7",exp:"13 + 7 = 20! Count on from 13 to 20!"},
+      {q:"What is 8 + 7?",type:"mc",opts:["13","16","15","14"],ans:"15",exp:"8 + 7 = 15. Try: 8+2=10, then 10+5=15!"},
+      {q:"What is 6 + 8?",type:"input",ans:"14",exp:"6 + 8 = 14. Try: 6+4=10, then 10+4=14!"},
+      {q:"What goes with 16 to make 20?",type:"mc",opts:["3","5","6","4"],ans:"4",exp:"16 + 4 = 20!"},
+    ]},
+    {id:'add1_2digit',name:'Adding to 20',desc:'Add numbers crossing 10',icon:'⬆️',questions:[
+      {q:"What is 8 + 6?",type:"mc",opts:["13","15","16","14"],ans:"14",exp:"8 + 6 = 14. Bridge through 10: 8+2=10, then +4 more!"},
+      {q:"What is 9 + 9?",type:"input",ans:"18",exp:"9 + 9 = 18. Double 9!"},
+      {q:"What is 7 + 8?",type:"mc",opts:["16","13","14","15"],ans:"15",exp:"7 + 8 = 15. Bridge through 10!"},
+      {q:"What is 13 + 5?",type:"input",ans:"18",exp:"13 + 5 = 18. Start at 13, count on 5!"},
+      {q:"What is 12 + 9?",type:"mc",opts:["20","19","22","21"],ans:"21",exp:"12 + 9 = 21. 12+8=20, then +1=21!"},
+      {q:"What is 15 + 7?",type:"input",ans:"22",exp:"15 + 7 = 22. 15+5=20, then +2=22!"},
+    ]},
+    {id:'add1_story',name:'Adding Word Problems',desc:'Multi-step number stories',icon:'📖',questions:[
+      {q:"There are 9 🐟 fish in one tank and 8 🐟 in another. How many fish altogether?",type:"input",ans:"17",exp:"9 + 8 = 17 fish! Bridge through 10: 9+1=10, then +7=17!"},
+      {q:"Lily has 7 🌸 flowers. She picks 9 more. How many flowers does she have?",type:"mc",opts:["14","17","15","16"],ans:"16",exp:"7 + 9 = 16 flowers! 7+3=10, then +6=16!"},
+      {q:"There are 14 🍎 red apples and 8 🍏 green apples. How many apples in total?",type:"input",ans:"22",exp:"14 + 8 = 22 apples!"},
+      {q:"A bag has 13 🍬 sweets. Another has 9 🍬. How many altogether?",type:"mc",opts:["20","23","21","22"],ans:"22",exp:"13 + 9 = 22. 13+7=20, then +2=22!"},
+    ]},
+  ]},
+  {id:'sub1',label:'Subtraction',emoji:'➖',color:'#ef4444',tasks:[
+    {id:'sub1_cross10',name:'Subtracting Across 10',desc:'Bridge back through 10',icon:'🔟',questions:[
+      {q:"What is 14 − 6?",type:"mc",opts:["7","9","6","8"],ans:"8",exp:"14 − 6 = 8. Bridge back: 14−4=10, then 10−2=8!"},
+      {q:"What is 13 − 7?",type:"input",ans:"6",exp:"13 − 7 = 6. Bridge: 13−3=10, then 10−4=6!"},
+      {q:"What is 16 − 8?",type:"mc",opts:["7","9","6","8"],ans:"8",exp:"16 − 8 = 8. Bridge: 16−6=10, then 10−2=8!"},
+      {q:"What is 15 − 9?",type:"input",ans:"6",exp:"15 − 9 = 6. Bridge: 15−5=10, then 10−4=6!"},
+      {q:"What is 17 − 8?",type:"mc",opts:["8","10","7","9"],ans:"9",exp:"17 − 8 = 9. Bridge: 17−7=10, then 10−1=9!"},
+      {q:"What is 20 − 13?",type:"input",ans:"7",exp:"20 − 13 = 7. Count up from 13: 13+7=20!"},
+    ]},
+    {id:'sub1_missing',name:'Missing Number Subtraction',desc:'Find the mystery number',icon:'❓',questions:[
+      {q:"15 − ? = 8. What is the missing number?",type:"mc",opts:["5","8","6","7"],ans:"7",exp:"15 − 7 = 8. Or think: 8 + ? = 15, so 7!"},
+      {q:"? − 6 = 9. What is the missing number?",type:"input",ans:"15",exp:"9 + 6 = 15! Addition helps with subtraction!"},
+      {q:"18 − ? = 9. What is the missing number?",type:"mc",opts:["7","10","8","9"],ans:"9",exp:"18 − 9 = 9. 18 is double 9!"},
+      {q:"? − 8 = 7. What is the missing number?",type:"input",ans:"15",exp:"7 + 8 = 15!"},
+    ]},
+  ]},
+  {id:'counting1',label:'Counting',emoji:'🔢',color:'#8b5cf6',tasks:[
+    {id:'count1_odd_even',name:'Odd & Even Numbers',desc:'Spot the pattern',icon:'2️⃣',questions:[
+      {q:"Is 7 odd or even?",type:"mc",opts:["Even","Both","Neither","Odd"],ans:"Odd",exp:"7 is ODD! Odd numbers can't be split into 2 equal groups!"},
+      {q:"Which number is even?",type:"mc",opts:["15","17","13","16"],ans:"16",exp:"16 is EVEN — it ends in 6, which is even!"},
+      {q:"Count by 2s starting from 1: 1, 3, 5, ___",type:"mc",opts:["6","8","9","7"],ans:"7",exp:"1, 3, 5, 7! Odd numbers counting up by 2!"},
+      {q:"How many even numbers are between 10 and 20 (not including 10 and 20)?",type:"input",ans:"4",exp:"12, 14, 16, 18 — that's 4 even numbers!"},
+    ]},
+    {id:'count1_place',name:'Tens and Units',desc:'Understand place value',icon:'🏛️',questions:[
+      {q:"How many tens are in 47?",type:"mc",opts:["7","47","4","14"],ans:"4",exp:"47 = 4 tens and 7 units. The tens digit is 4!"},
+      {q:"What is the units digit in 83?",type:"input",ans:"3",exp:"83 = 8 tens + 3 units. The units digit is 3!"},
+      {q:"What number has 6 tens and 2 units?",type:"mc",opts:["26","602","260","62"],ans:"62",exp:"6 tens = 60, plus 2 units = 62!"},
+      {q:"Which is bigger: 54 or 45?",type:"mc",opts:["45","They're equal","54","Can't tell"],ans:"54",exp:"54 > 45 because 5 tens > 4 tens!"},
+    ]},
+  ]},
+  {id:'shapes1',label:'2D Shapes',emoji:'🔷',color:'#14b8a6',tasks:[
+    {id:'shape1_props',name:'Shape Properties',desc:'Sides, corners & symmetry',icon:'🔺',questions:[
+      {q:"A pentagon has how many sides?",type:"mc",opts:["4","6","3","5"],ans:"5",exp:"Penta = 5! Pentagon has 5 sides! ⭐"},
+      {q:"A hexagon has how many sides?",type:"input",ans:"6",exp:"Hexa = 6! Like a honeycomb cell! 🐝"},
+      {q:"Which shape has 4 equal sides AND 4 right angles?",type:"mc",opts:["Rectangle","Rhombus","Triangle","Square"],ans:"Square",exp:"A square has 4 equal sides AND 4 right-angle corners!"},
+      {q:"How many lines of symmetry does a square have?",type:"mc",opts:["2","1","3","4"],ans:"4",exp:"A square has 4 lines of symmetry — 2 across and 2 diagonal!"},
+    ]},
+  ]},
+]},
+
+2:{color:'#f97316',topics:[
+  {id:'add2',label:'Adding',emoji:'➕',color:'#f97316',tasks:[
+    {id:'add2_carry',name:'Adding with Carrying',desc:'Regroup when units reach 10',icon:'🔄',questions:[
+      {q:"What is 47 + 35?",type:"mc",opts:["72","82","83","80"],ans:"82",exp:"Units: 7+5=12 (write 2, carry 1). Tens: 4+3+1=8. Answer: 82!"},
+      {q:"What is 56 + 28?",type:"input",ans:"84",exp:"Units: 6+8=14 (write 4, carry 1). Tens: 5+2+1=8. Answer: 84!"},
+      {q:"What is 76 + 48?",type:"mc",opts:["114","124","125","124"],ans:"124",exp:"Units: 6+8=14 (write 4, carry 1). Tens: 7+4+1=12. Answer: 124!"},
+      {q:"A shop has 67 red toys and 55 blue toys. How many toys in total?",type:"input",ans:"122",exp:"67 + 55 = 122. Units: 7+5=12, Tens: 6+5+1=12!"},
+      {q:"What is 88 + 47?",type:"mc",opts:["125","135","135","145"],ans:"135",exp:"Units: 8+7=15 (write 5, carry 1). Tens: 8+4+1=13. Answer: 135!"},
+    ]},
+    {id:'add2_3digit',name:'Adding 3-Digit Numbers',desc:'Hundreds, tens, units',icon:'💯',questions:[
+      {q:"What is 134 + 215?",type:"mc",opts:["339","359","349","369"],ans:"349",exp:"Units: 4+5=9. Tens: 3+1=4. Hundreds: 1+2=3. Answer: 349!"},
+      {q:"What is 256 + 138?",type:"input",ans:"394",exp:"Units: 6+8=14 (carry 1). Tens: 5+3+1=9. Hundreds: 2+1=3. Answer: 394!"},
+      {q:"What is 407 + 285?",type:"mc",opts:["682","702","712","692"],ans:"692",exp:"Units: 7+5=12. Tens: 0+8+1=9. Hundreds: 4+2=6. Answer: 692!"},
+      {q:"A school has 327 boys and 285 girls. How many students in total?",type:"input",ans:"612",exp:"327 + 285 = 612 students!"},
+    ]},
+    {id:'add2_mental',name:'Mental Maths Strategies',desc:'Smart ways to add quickly',icon:'🧠',questions:[
+      {q:"What is 99 + 46?",type:"mc",opts:["134","144","146","145"],ans:"145",exp:"99 + 46: Add 100 then subtract 1. 46+100=146, then 146−1=145!"},
+      {q:"What is 48 + 37?",type:"mc",opts:["75","85","84","86"],ans:"85",exp:"Round up: 50 + 37 = 87, then subtract 2 = 85!"},
+      {q:"What is 75 + 75?",type:"input",ans:"150",exp:"Double 75! 70+70=140, 5+5=10, total 150!"},
+      {q:"What is 198 + 67?",type:"mc",opts:["265","266","255","264"],ans:"265",exp:"198 + 67: Add 200 then subtract 2. 67+200=267, then 267−2=265!"},
+    ]},
+  ]},
+  {id:'tables2',label:'Times Tables',emoji:'✖️',color:'#3b82f6',tasks:[
+    {id:'tbl2_3',name:'3 Times Table',desc:'Multiply and divide by 3',icon:'3️⃣',questions:[
+      {q:"What is 3 × 8?",type:"mc",opts:["21","27","24","18"],ans:"24",exp:"3 × 8 = 24. Count by 3s eight times: 3,6,9,12,15,18,21,24!"},
+      {q:"What is 3 × 12?",type:"input",ans:"36",exp:"3 × 12 = 36. Or: 3×10=30, then +3×2=6. Total: 36!"},
+      {q:"27 ÷ 3 = ?",type:"mc",opts:["7","10","8","9"],ans:"9",exp:"27 ÷ 3 = 9 because 3 × 9 = 27!"},
+      {q:"What is 4 × 3?",type:"input",ans:"12",exp:"4 × 3 = 12. Or 3 × 4 — multiplication is commutative!"},
+      {q:"A bag holds 3 tennis balls. How many balls in 9 bags?",type:"mc",opts:["24","30","21","27"],ans:"27",exp:"9 × 3 = 27 balls!"},
+    ]},
+    {id:'tbl2_4',name:'4 Times Table',desc:'Multiply and divide by 4',icon:'4️⃣',questions:[
+      {q:"What is 4 × 7?",type:"mc",opts:["24","32","30","28"],ans:"28",exp:"4 × 7 = 28. Double 7 (=14) and double again (=28)!"},
+      {q:"What is 4 × 9?",type:"input",ans:"36",exp:"4 × 9 = 36. Or: 4×10=40, minus 4=36!"},
+      {q:"36 ÷ 4 = ?",type:"mc",opts:["8","10","7","9"],ans:"9",exp:"36 ÷ 4 = 9 because 4 × 9 = 36!"},
+      {q:"4 children each have 12 crayons. How many crayons in total?",type:"input",ans:"48",exp:"4 × 12 = 48. Or: 4×10=40, 4×2=8. Total: 48!"},
+    ]},
+    {id:'tbl2_mixed',name:'Mixed Tables Challenge',desc:'2, 3, 4, 5, 10 times tables',icon:'🎲',questions:[
+      {q:"What is 6 × 4?",type:"mc",opts:["18","28","20","24"],ans:"24",exp:"6 × 4 = 24. Or: double 6 (=12), double again (=24)!"},
+      {q:"What is 7 × 3?",type:"input",ans:"21",exp:"7 × 3 = 21. Count by 3s seven times!"},
+      {q:"What is 8 × 5?",type:"mc",opts:["35","45","50","40"],ans:"40",exp:"8 × 5 = 40. Count by 5s eight times!"},
+      {q:"32 ÷ 4 = ?",type:"input",ans:"8",exp:"32 ÷ 4 = 8 because 4 × 8 = 32!"},
+      {q:"What is 11 × 3?",type:"mc",opts:["30","33","36","27"],ans:"33",exp:"11 × 3 = 33. 10×3=30, then +3=33!"},
+    ]},
+  ]},
+  {id:'sub2',label:'Subtraction',emoji:'➖',color:'#ef4444',tasks:[
+    {id:'sub2_borrow',name:'Subtracting with Borrowing',desc:'Regroup when you need to',icon:'🔄',questions:[
+      {q:"What is 72 − 38?",type:"mc",opts:["24","44","36","34"],ans:"34",exp:"Borrow 1 ten: 12−8=4. Remaining tens: 6−3=3. Answer: 34!"},
+      {q:"What is 143 − 67?",type:"input",ans:"76",exp:"143−67: Units borrow: 13−7=6. Tens borrow: 13−6=7. Answer: 76!"},
+      {q:"What is 200 − 85?",type:"mc",opts:["115","125","105","120"],ans:"115",exp:"200 − 85 = 115. Borrow from hundreds!"},
+      {q:"A bag has 150 beads. 73 are used. How many are left?",type:"input",ans:"77",exp:"150 − 73 = 77 beads left!"},
+    ]},
+  ]},
+  {id:'money2',label:'Money',emoji:'💰',color:'#eab308',tasks:[
+    {id:'mon2_operations',name:'Money Calculations',desc:'Add and subtract money',icon:'🛒',questions:[
+      {q:"A book costs $3.50 and a pen costs $1.25. How much together?",type:"mc",opts:["$4.50","$5.00","$4.75","$4.25"],ans:"$4.75",exp:"$3.50 + $1.25 = $4.75!"},
+      {q:"You pay $10 for something costing $6.80. What change do you get?",type:"input",ans:"3.20",exp:"$10.00 − $6.80 = $3.20 change!"},
+      {q:"Three items cost $2.40, $1.85 and $3.50. What is the total?",type:"mc",opts:["$7.55","$7.65","$7.75","$7.45"],ans:"$7.75",exp:"$2.40+$1.85+$3.50 = $7.75!"},
+      {q:"You have $20. After buying a toy for $13.60, how much is left?",type:"input",ans:"6.40",exp:"$20.00 − $13.60 = $6.40!"},
+    ]},
+    {id:'mon2_best_value',name:'Best Value',desc:'Compare prices and quantities',icon:'🏷️',questions:[
+      {q:"3 pencils cost $1.20. How much does 1 pencil cost?",type:"mc",opts:["30c","50c","45c","40c"],ans:"40c",exp:"$1.20 ÷ 3 = 40c per pencil!"},
+      {q:"6 muffins cost $7.20. How much does 1 muffin cost?",type:"input",ans:"1.20",exp:"$7.20 ÷ 6 = $1.20 per muffin!"},
+      {q:"Pack A: 4 erasers for $2.00. Pack B: 5 erasers for $2.75. Which is better value?",type:"mc",opts:["Pack A ($0.50 each)","Same value","Pack B ($0.45 each)","Can't tell"],ans:"Pack B ($0.45 each)",exp:"Pack A = 50c each. Pack B = 55c each. Pack A is better value!"},
+      {q:"If 5 apples cost $3.00, how much would 8 apples cost?",type:"input",ans:"4.80",exp:"1 apple = $3.00÷5 = 60c. 8 apples = 8×60c = $4.80!"},
+    ]},
+  ]},
+]},
+
+3:{color:'#eab308',topics:[
+  {id:'mul3',label:'Multiplication',emoji:'✖️',color:'#3b82f6',tasks:[
+    {id:'mul3_hard',name:'Harder Times Tables',desc:'6, 7, 8, 9 tables fluency',icon:'⚡',questions:[
+      {q:"What is 7 × 8?",type:"mc",opts:["54","63","48","56"],ans:"56",exp:"7 × 8 = 56. Remember: 5, 6, 7, 8 → 56 = 7×8! 🌟"},
+      {q:"What is 9 × 6?",type:"input",ans:"54",exp:"9 × 6 = 54. 9 trick: digits add to 9 (5+4=9)!"},
+      {q:"What is 8 × 8?",type:"mc",opts:["56","72","60","64"],ans:"64",exp:"8 × 8 = 64. A square number!"},
+      {q:"63 ÷ 7 = ?",type:"input",ans:"9",exp:"63 ÷ 7 = 9 because 7 × 9 = 63!"},
+      {q:"What is 6 × 9?",type:"mc",opts:["48","60","56","54"],ans:"54",exp:"6 × 9 = 54. Or: 6×10=60, minus 6=54!"},
+      {q:"72 ÷ 8 = ?",type:"input",ans:"9",exp:"72 ÷ 8 = 9 because 8 × 9 = 72!"},
+    ]},
+    {id:'mul3_written',name:'Written Multiplication',desc:'Multiply 2-digit × 1-digit',icon:'✏️',questions:[
+      {q:"What is 34 × 6?",type:"mc",opts:["184","214","204","194"],ans:"204",exp:"34×6 = (30×6)+(4×6) = 180+24 = 204!"},
+      {q:"What is 47 × 8?",type:"input",ans:"376",exp:"47×8 = (40×8)+(7×8) = 320+56 = 376!"},
+      {q:"What is 93 × 7?",type:"mc",opts:["641","661","651","631"],ans:"651",exp:"93×7 = (90×7)+(3×7) = 630+21 = 651!"},
+      {q:"A football stadium has 58 rows of 9 seats. How many seats?",type:"input",ans:"522",exp:"58 × 9 = (50×9)+(8×9) = 450+72 = 522 seats!"},
+    ]},
+    {id:'mul3_problem',name:'Multiplication Problems',desc:'Multi-step word problems',icon:'📖',questions:[
+      {q:"Eggs come in boxes of 12. How many eggs in 7 boxes?",type:"mc",opts:["72","96","84","60"],ans:"84",exp:"7 × 12 = 84. 7×10=70, then +7×2=14. Total: 84!"},
+      {q:"A cinema has 8 rows of 27 seats. How many seats in total?",type:"input",ans:"216",exp:"8 × 27 = (8×20)+(8×7) = 160+56 = 216 seats!"},
+      {q:"5 teams each score 136 points. What is the total score?",type:"mc",opts:["670","690","680","660"],ans:"680",exp:"5 × 136 = (5×100)+(5×36) = 500+180 = 680!"},
+      {q:"Each school bag costs $24. A school buys 9 bags. What is the cost?",type:"input",ans:"216",exp:"9 × 24 = (9×20)+(9×4) = 180+36 = $216!"},
+    ]},
+  ]},
+  {id:'div3',label:'Division',emoji:'➗',color:'#ec4899',tasks:[
+    {id:'div3_remainder',name:'Division with Remainders',desc:'When it doesn\'t divide evenly',icon:'🔢',questions:[
+      {q:"What is 25 ÷ 4? (give remainder)",type:"mc",opts:["5 r3","7 r1","5 r5","6 r1"],ans:"6 r1",exp:"4×6=24, so 25÷4 = 6 remainder 1!"},
+      {q:"What is 38 ÷ 5?",type:"mc",opts:["7 r3","8 r2","8 r3","7 r2"],ans:"7 r3",exp:"5×7=35, so 38÷5 = 7 remainder 3!"},
+      {q:"31 children sit at tables of 4. How many tables are needed?",type:"mc",opts:["7","9","8","6"],ans:"8",exp:"31÷4 = 7 r3 — but you need 8 tables so everyone fits!"},
+      {q:"What is 50 ÷ 7? (give remainder)",type:"mc",opts:["6 r8","7 r2","7 r1","8 r1"],ans:"7 r1",exp:"7×7=49, so 50÷7 = 7 remainder 1!"},
+    ]},
+    {id:'div3_long',name:'Dividing Bigger Numbers',desc:'Divide 3-digit numbers',icon:'💥',questions:[
+      {q:"What is 126 ÷ 6?",type:"mc",opts:["19","23","22","21"],ans:"21",exp:"126÷6: 12÷6=2(tens), 6÷6=1(unit). Answer: 21!"},
+      {q:"What is 144 ÷ 4?",type:"input",ans:"36",exp:"144÷4: 12÷4=3(tens), 24÷4=6(units). Answer: 36!"},
+      {q:"What is 225 ÷ 9?",type:"mc",opts:["23","26","24","25"],ans:"25",exp:"225÷9 = 25. Check: 9×25 = 225! ✓"},
+      {q:"168 apples are packed into bags of 8. How many bags?",type:"input",ans:"21",exp:"168÷8 = 21 bags! Check: 8×21=168 ✓"},
+    ]},
+  ]},
+  {id:'fractions3',label:'Fractions',emoji:'🍕',color:'#8b5cf6',tasks:[
+    {id:'frac3_improper',name:'Mixed Numbers & Improper Fractions',desc:'Convert between the two',icon:'🔄',questions:[
+      {q:"Convert 7/4 to a mixed number.",type:"mc",opts:["2¼","1¾","1½","2½"],ans:"1¾",exp:"7÷4 = 1 remainder 3. So 7/4 = 1¾!"},
+      {q:"Convert 2⅓ to an improper fraction.",type:"mc",opts:["5/3","6/3","7/3","8/3"],ans:"7/3",exp:"2×3=6, then +1=7. So 2⅓ = 7/3!"},
+      {q:"What is 9/5 as a mixed number?",type:"input",ans:"1 4/5",exp:"9÷5 = 1 remainder 4. So 9/5 = 1 and 4/5!"},
+      {q:"Convert 3½ to an improper fraction.",type:"mc",opts:["5/2","7/2","8/2","6/2"],ans:"7/2",exp:"3×2=6, then +1=7. So 3½ = 7/2!"},
+    ]},
+    {id:'frac3_add',name:'Adding & Subtracting Fractions',desc:'Same denominator fractions',icon:'➕',questions:[
+      {q:"What is ⅜ + ⅜?",type:"mc",opts:["6/16","¾","6/8","⅜"],ans:"¾",exp:"3/8 + 3/8 = 6/8 = ¾. Add tops, keep the bottom!"},
+      {q:"What is ⅚ − ⅙?",type:"input",ans:"4/6",exp:"5/6 − 1/6 = 4/6. Subtract tops, keep the bottom!"},
+      {q:"What is 2/7 + 4/7?",type:"mc",opts:["6/14","6/7","8/7","1"],ans:"6/7",exp:"2/7 + 4/7 = 6/7. Add the numerators!"},
+      {q:"What is 7/10 − 3/10?",type:"input",ans:"4/10",exp:"7/10 − 3/10 = 4/10 = 2/5. Subtract numerators!"},
+    ]},
+  ]},
+  {id:'meas3',label:'Measurement',emoji:'📏',color:'#14b8a6',tasks:[
+    {id:'meas3_convert',name:'Converting Units',desc:'cm, m, km, g, kg, mL, L',icon:'🔄',questions:[
+      {q:"Convert 3.5 km to metres.",type:"mc",opts:["350","35000","3500","350000"],ans:"3500",exp:"1 km = 1000 m. So 3.5 km = 3500 m!"},
+      {q:"Convert 2750 g to kg.",type:"input",ans:"2.75",exp:"1 kg = 1000 g. 2750 ÷ 1000 = 2.75 kg!"},
+      {q:"How many mL in 1.4 L?",type:"mc",opts:["140","14000","14","1400"],ans:"1400",exp:"1 L = 1000 mL. 1.4 × 1000 = 1400 mL!"},
+      {q:"A plank is 1.8 m long. How many cm is that?",type:"input",ans:"180",exp:"1 m = 100 cm. 1.8 × 100 = 180 cm!"},
+    ]},
+    {id:'meas3_time',name:'Time Problems',desc:'Calculate durations and times',icon:'⏰',questions:[
+      {q:"A film starts at 2:35pm and lasts 1 hour 45 minutes. When does it end?",type:"mc",opts:["4:20pm","4:10pm","3:55pm","4:05pm"],ans:"4:20pm",exp:"2:35 + 1h45m: 2:35+1h=3:35, then 3:35+45m=4:20pm!"},
+      {q:"How many minutes is 2 hours and 20 minutes?",type:"input",ans:"140",exp:"2×60=120 mins, then +20=140 mins!"},
+      {q:"School starts at 8:50am and finishes at 3:20pm. How long is the school day?",type:"mc",opts:["6h30m","6h","7h","6h20m"],ans:"6h30m",exp:"8:50 to 3:20: 8:50 to 3:50=7h, minus 30min=6h30m!"},
+      {q:"A train journey takes 3 hours 40 minutes. If it leaves at 9:15am, when does it arrive?",type:"input",ans:"12:55pm",exp:"9:15 + 3h40m: 9:15+3h=12:15, then +40m=12:55pm!"},
+    ]},
+  ]},
+]},
+
+4:{color:'#22c55e',topics:[
+  {id:'mul4',label:'Multiplication',emoji:'✖️',color:'#3b82f6',tasks:[
+    {id:'mul4_2x2',name:'2-Digit × 2-Digit',desc:'Long multiplication method',icon:'💥',questions:[
+      {q:"What is 34 × 26?",type:"mc",opts:["854","884","884","864"],ans:"884",exp:"34×26 = 34×20+34×6 = 680+204 = 884!"},
+      {q:"What is 47 × 38?",type:"input",ans:"1786",exp:"47×38 = 47×30+47×8 = 1410+376 = 1786!"},
+      {q:"What is 63 × 45?",type:"mc",opts:["2735","2845","2835","2825"],ans:"2835",exp:"63×45 = 63×40+63×5 = 2520+315 = 2835!"},
+      {q:"A school sells 48 tickets at $32 each. How much money in total?",type:"input",ans:"1536",exp:"48×32 = 48×30+48×2 = 1440+96 = $1536!"},
+    ]},
+    {id:'mul4_3x1',name:'3-Digit × 1-Digit',desc:'Multiply hundreds, tens, units',icon:'🔢',questions:[
+      {q:"What is 346 × 7?",type:"mc",opts:["2412","2422","2402","2432"],ans:"2422",exp:"346×7 = (300×7)+(40×7)+(6×7) = 2100+280+42 = 2422!"},
+      {q:"What is 528 × 9?",type:"input",ans:"4752",exp:"528×9 = (500×9)+(20×9)+(8×9) = 4500+180+72 = 4752!"},
+      {q:"What is 413 × 8?",type:"mc",opts:["3204","3304","3294","3314"],ans:"3304",exp:"413×8 = (400×8)+(10×8)+(3×8) = 3200+80+24 = 3304!"},
+      {q:"A factory makes 265 cars per day. How many in 6 days?",type:"input",ans:"1590",exp:"265×6 = (200×6)+(60×6)+(5×6) = 1200+360+30 = 1590!"},
+    ]},
+  ]},
+  {id:'area4',label:'Area & Perimeter',emoji:'📐',color:'#14b8a6',tasks:[
+    {id:'area4_compound',name:'Compound Shapes',desc:'Split into rectangles to find area',icon:'🔷',questions:[
+      {q:"An L-shape is made of a 6×4 rectangle and a 3×2 rectangle. What is the total area?",type:"mc",opts:["28cm²","32cm²","30cm²","24cm²"],ans:"30cm²",exp:"6×4=24, plus 3×2=6. Total = 30 cm²!"},
+      {q:"A room is 8m × 7m. A wardrobe takes up 2m × 1.5m. What is the remaining floor area?",type:"input",ans:"53",exp:"8×7=56m². Wardrobe=2×1.5=3m². Remaining=56−3=53m²!"},
+      {q:"A rectangle is 12cm × 5cm. A square of side 3cm is cut from one corner. What is the remaining area?",type:"mc",opts:["49cm²","57cm²","51cm²","45cm²"],ans:"51cm²",exp:"12×5=60cm². 3×3=9cm². Remaining=60−9=51cm²!"},
+      {q:"What is the area of a shape made of two squares, each 7cm × 7cm, placed side by side?",type:"input",ans:"98",exp:"Two 7×7 squares: 2×(7×7) = 2×49 = 98 cm²!"},
+    ]},
+    {id:'area4_missing',name:'Finding Missing Lengths',desc:'Use area to find unknown sides',icon:'❓',questions:[
+      {q:"A rectangle has area 72cm² and length 9cm. What is the width?",type:"mc",opts:["6cm","9cm","7cm","8cm"],ans:"8cm",exp:"Width = Area÷Length = 72÷9 = 8 cm!"},
+      {q:"A square has area 64cm². What is the length of each side?",type:"input",ans:"8",exp:"Side = √64 = 8 cm. Because 8×8=64!"},
+      {q:"A rectangle has perimeter 38cm and width 7cm. What is the length?",type:"mc",opts:["10cm","13cm","12cm","11cm"],ans:"12cm",exp:"Perimeter=2(l+w). 38=2(l+7). 19=l+7. l=12cm!"},
+      {q:"A rectangle has area 84cm² and one side is 12cm. What is the other side?",type:"input",ans:"7",exp:"Other side = 84÷12 = 7 cm!"},
+    ]},
+  ]},
+  {id:'decimals4',label:'Decimals',emoji:'🔢',color:'#8b5cf6',tasks:[
+    {id:'dec4_mult',name:'Multiplying & Dividing Decimals',desc:'×10, ÷10, ×100, ÷100',icon:'✖️',questions:[
+      {q:"What is 3.47 × 10?",type:"mc",opts:["3.470","34.70","347","34.7"],ans:"34.7",exp:"Multiply by 10: move digits one place left. 3.47→34.7!"},
+      {q:"What is 86.5 ÷ 100?",type:"input",ans:"0.865",exp:"Divide by 100: move digits 2 places right. 86.5→0.865!"},
+      {q:"What is 0.64 × 100?",type:"mc",opts:["6.4","6400","640","64"],ans:"64",exp:"×100 moves digits 2 places left. 0.64→64!"},
+      {q:"What is 7.3 × 1000?",type:"input",ans:"7300",exp:"×1000 moves digits 3 places left. 7.3→7300!"},
+    ]},
+    {id:'dec4_order',name:'Ordering & Comparing Decimals',desc:'Which is bigger?',icon:'⚖️',questions:[
+      {q:"Order from smallest to largest: 3.4, 3.04, 3.41, 3.14",type:"mc",opts:["3.04,3.14,3.4,3.41","3.14,3.04,3.4,3.41","3.04,3.4,3.14,3.41","3.41,3.4,3.14,3.04"],ans:"3.04,3.14,3.4,3.41",exp:"Look at tenths first: 3.04<3.14<3.40<3.41!"},
+      {q:"Which is bigger: 4.09 or 4.1?",type:"mc",opts:["4.09","They're equal","4.1","Can't tell"],ans:"4.1",exp:"4.1 = 4.10. Compare tenths: 1 tenth > 0 tenths, so 4.1 > 4.09!"},
+      {q:"What decimal is halfway between 3.6 and 3.8?",type:"input",ans:"3.7",exp:"Halfway between 3.6 and 3.8 = (3.6+3.8)÷2 = 7.4÷2 = 3.7!"},
+      {q:"Round 7.45 to 1 decimal place.",type:"mc",opts:["7.4","7.0","8.0","7.5"],ans:"7.5",exp:"7.45 → look at hundredths digit (5): round up! 7.5!"},
+    ]},
+  ]},
+  {id:'angles4',label:'Angles',emoji:'📐',color:'#f97316',tasks:[
+    {id:'ang4_calc',name:'Calculating Missing Angles',desc:'Use angle rules to find unknowns',icon:'🔢',questions:[
+      {q:"Angles around a point = 360°. One angle is 115°, another is 93°. What is the third?",type:"mc",opts:["142°","152°","162°","148°"],ans:"152°",exp:"360 − 115 − 93 = 152°!"},
+      {q:"A triangle has two equal angles of 65°. What is the third angle?",type:"input",ans:"50",exp:"180 − 65 − 65 = 50°!"},
+      {q:"Vertically opposite angles are equal. One is 47°. What is the one directly opposite?",type:"mc",opts:["133°","43°","137°","47°"],ans:"47°",exp:"Vertically opposite angles are always equal! Both = 47°!"},
+      {q:"A quadrilateral has angles 95°, 85°, 110°. What is the fourth angle?",type:"input",ans:"70",exp:"Angles in a quadrilateral = 360°. 360−95−85−110=70°!"},
+    ]},
+    {id:'ang4_types',name:'Angle Types & Properties',desc:'Classify and describe angles',icon:'📏',questions:[
+      {q:"An angle of 215° is called...?",type:"mc",opts:["Obtuse","Acute","Right","Reflex"],ans:"Reflex",exp:"Reflex angles are greater than 180°! 215° is a reflex angle!"},
+      {q:"What do co-interior angles in parallel lines add up to?",type:"mc",opts:["90°","360°","270°","180°"],ans:"180°",exp:"Co-interior (same-side) angles between parallel lines always add to 180°!"},
+      {q:"Two complementary angles add up to...?",type:"mc",opts:["360°","270°","90°","180°"],ans:"90°",exp:"Complementary angles sum to 90°! Like 30° and 60°!"},
+      {q:"Angle x and angle (x+40) are supplementary. Find x.",type:"input",ans:"70",exp:"Supplementary angles sum to 180°. x+(x+40)=180. 2x+40=180. 2x=140. x=70°!"},
+    ]},
+  ]},
+]},
+
+5:{color:'#3b82f6',topics:[
+  {id:'alg5',label:'Algebra',emoji:'🔣',color:'#8b5cf6',tasks:[
+    {id:'alg5_twovar',name:'Equations with Two Steps',desc:'Solve multi-step equations',icon:'🔍',questions:[
+      {q:"Solve: 3x + 7 = 22",type:"input",ans:"5",exp:"3x = 22−7 = 15. x = 15÷3 = 5!"},
+      {q:"Solve: 4y − 9 = 19",type:"mc",opts:["6","8","5","7"],ans:"7",exp:"4y = 19+9 = 28. y = 28÷4 = 7!"},
+      {q:"Solve: 2(x + 5) = 24",type:"input",ans:"7",exp:"x+5 = 12. x = 12−5 = 7!"},
+      {q:"Solve: 5n − 3 = 2n + 12",type:"mc",opts:["4","6","5","7"],ans:"5",exp:"5n−2n = 12+3. 3n=15. n=5!"},
+      {q:"Solve: x/4 + 3 = 8",type:"input",ans:"20",exp:"x/4 = 5. x = 5×4 = 20!"},
+    ]},
+    {id:'alg5_sequences',name:'Sequences & nth Term',desc:'Find the rule for any position',icon:'🌈',questions:[
+      {q:"Sequence: 5, 8, 11, 14... What is the 10th term?",type:"mc",opts:["30","33","32","29"],ans:"32",exp:"Rule: 3n+2. 10th term = 3×10+2 = 32!"},
+      {q:"What is the nth term of: 4, 7, 10, 13...?",type:"mc",opts:["3n+1","n+4","4n−1","3n+1"],ans:"3n+1",exp:"Goes up by 3. First term=4=3×1+1. nth term = 3n+1!"},
+      {q:"Sequence: 2, 5, 10, 17, 26... What is the next term?",type:"input",ans:"37",exp:"Differences: 3,5,7,9,11... The next difference is 11. 26+11=37!"},
+      {q:"Sequence: 3, 6, 12, 24... What is the 6th term?",type:"mc",opts:["72","100","96","84"],ans:"96",exp:"Multiply by 2 each time: 3,6,12,24,48,96. 6th = 96!"},
+    ]},
+    {id:'alg5_graphs',name:'Graphs & Coordinates',desc:'Plot and read linear graphs',icon:'📈',questions:[
+      {q:"The rule is y = 2x + 1. What is y when x = 6?",type:"input",ans:"13",exp:"y = 2×6+1 = 12+1 = 13!"},
+      {q:"Which of these points lies on y = 3x − 2?",type:"mc",opts:["(2,4)","(3,7)","(4,11)","(2,5)"],ans:"(3,7)",exp:"y=3×3−2=9−2=7. Yes! (3,7) is on the line!"},
+      {q:"A straight line has gradient 4 and y-intercept 3. What is y when x = 5?",type:"input",ans:"23",exp:"y = 4×5+3 = 20+3 = 23!"},
+      {q:"Two points on a line are (0,2) and (3,8). What is the gradient?",type:"mc",opts:["4","3","6","2"],ans:"2",exp:"Gradient=(8−2)÷(3−0)=6÷3=2!"},
+    ]},
+  ]},
+  {id:'pct5',label:'Percentages',emoji:'💯',color:'#f97316',tasks:[
+    {id:'pct5_change',name:'Percentage Increase & Decrease',desc:'Calculate changes as percentages',icon:'📈',questions:[
+      {q:"A price rises from $80 to $100. What is the % increase?",type:"mc",opts:["15%","30%","20%","25%"],ans:"25%",exp:"Increase=20. 20÷80×100 = 25%!"},
+      {q:"A jacket costs $120. After a 35% discount, what is the sale price?",type:"input",ans:"78",exp:"35% of 120 = $42 off. $120−$42 = $78!"},
+      {q:"A car was worth $15,000. It loses 20% of its value. What is it worth now?",type:"mc",opts:["$13,000","$12,500","$11,000","$12,000"],ans:"$12,000",exp:"20% of 15000 = $3000 off. $15000−$3000=$12,000!"},
+      {q:"After a 15% pay rise, someone earns $2,300/month. What did they earn before?",type:"input",ans:"2000",exp:"$2300 = 115% of original. Original = 2300÷1.15 = $2000!"},
+    ]},
+    {id:'pct5_reverse',name:'Reverse Percentages',desc:'Find the original amount',icon:'🔄',questions:[
+      {q:"After a 20% increase, a plant is 60cm tall. How tall was it before?",type:"mc",opts:["48cm","50cm","52cm","45cm"],ans:"50cm",exp:"60 = 120% of original. Original = 60÷1.2 = 50cm!"},
+      {q:"A sale reduces a price by 25%. The sale price is $75. What was the original?",type:"input",ans:"100",exp:"$75 = 75% of original. Original = 75÷0.75 = $100!"},
+      {q:"After 10% VAT, a bill is $88. What was it before tax?",type:"mc",opts:["$75","$80","$78","$82"],ans:"$80",exp:"$88 = 110% of original. Original = 88÷1.1 = $80!"},
+      {q:"After gaining 40% of its weight, a puppy weighs 7kg. What did it weigh before?",type:"input",ans:"5",exp:"7kg = 140% of original. Original = 7÷1.4 = 5kg!"},
+    ]},
+  ]},
+  {id:'geo5',label:'Geometry',emoji:'📐',color:'#14b8a6',tasks:[
+    {id:'geo5_circle',name:'Circles — Circumference & Area',desc:'Use π in calculations',icon:'⭕',questions:[
+      {q:"What is the circumference of a circle with diameter 10cm? (π ≈ 3.14)",type:"mc",opts:["31.4cm","62.8cm","15.7cm","25cm"],ans:"31.4cm",exp:"C = π × d = 3.14 × 10 = 31.4 cm!"},
+      {q:"What is the area of a circle with radius 6cm? (π ≈ 3.14)",type:"input",ans:"113.04",exp:"A = π×r² = 3.14×36 = 113.04 cm²!"},
+      {q:"A circle has circumference 25.12cm. What is its diameter? (π ≈ 3.14)",type:"mc",opts:["6cm","10cm","8cm","12cm"],ans:"8cm",exp:"d = C÷π = 25.12÷3.14 = 8 cm!"},
+      {q:"What is the area of a circle with diameter 14cm? (π ≈ 3.14)",type:"input",ans:"153.86",exp:"r = 7. A = π×49 = 3.14×49 = 153.86 cm²!"},
+    ]},
+    {id:'geo5_3d',name:'Volume of 3D Shapes',desc:'Find volume of cuboids and prisms',icon:'🎲',questions:[
+      {q:"What is the volume of a cuboid 5cm × 4cm × 3cm?",type:"mc",opts:["48cm³","72cm³","80cm³","60cm³"],ans:"60cm³",exp:"V = l×w×h = 5×4×3 = 60 cm³!"},
+      {q:"A cube has sides of 6cm. What is its volume?",type:"input",ans:"216",exp:"V = 6³ = 6×6×6 = 216 cm³!"},
+      {q:"A fish tank is 40cm × 25cm × 30cm. What is its volume in cm³?",type:"mc",opts:["24000","28000","32000","30000"],ans:"30000",exp:"V = 40×25×30 = 30,000 cm³!"},
+      {q:"A triangular prism has a triangle base of area 12cm² and length 8cm. What is the volume?",type:"input",ans:"96",exp:"V = base area × length = 12×8 = 96 cm³!"},
+    ]},
+  ]},
+  {id:'stats5',label:'Statistics',emoji:'📊',color:'#ec4899',tasks:[
+    {id:'stats5_all',name:'Mean, Median, Mode, Range',desc:'All four measures',icon:'📊',questions:[
+      {q:"Data: 4, 7, 2, 9, 3, 7, 8. What is the mode?",type:"mc",opts:["4","8","9","7"],ans:"7",exp:"Mode = most frequent. 7 appears twice, all others once!"},
+      {q:"Data: 12, 18, 15, 11, 14. What is the median?",type:"input",ans:"14",exp:"Sorted: 11,12,14,15,18. Middle value = 14!"},
+      {q:"Mean of 5 numbers is 12. Four of them are 10, 14, 9, 15. What is the fifth?",type:"mc",opts:["10","13","12","11"],ans:"12",exp:"Sum needed = 5×12=60. Known sum = 10+14+9+15=48. Missing = 60−48=12!"},
+      {q:"Data: 23, 17, 31, 8, 25, 19. What is the range?",type:"input",ans:"23",exp:"Range = 31 − 8 = 23!"},
+    ]},
+    {id:'stats5_chart',name:'Interpreting Charts',desc:'Read and analyse data displays',icon:'📈',questions:[
+      {q:"In a survey, 60% of 250 students prefer summer. How many students is that?",type:"mc",opts:["120","160","175","150"],ans:"150",exp:"60% of 250 = 0.6×250 = 150 students!"},
+      {q:"A pie chart shows sports preferences. Football = 120°, Cricket = 80°, Tennis = 60°, Other = ?°",type:"input",ans:"100",exp:"360−120−80−60 = 100°!"},
+      {q:"A bar chart shows test scores. Class average = 68. Tom scored 83. How many marks above average?",type:"mc",opts:["12","17","14","15"],ans:"15",exp:"83 − 68 = 15 marks above average!"},
+      {q:"The mean of a dataset is 24 and there are 8 values. What is the total sum?",type:"input",ans:"192",exp:"Total = mean × count = 24×8 = 192!"},
+    ]},
+  ]},
+]},
+
+6:{color:'#8b5cf6',topics:[
+  {id:'alg6',label:'Algebra',emoji:'🔣',color:'#8b5cf6',tasks:[
+    {id:'alg6_simultaneous',name:'Simultaneous Equations',desc:'Solve two equations at once',icon:'🔗',questions:[
+      {q:"Solve: x+y=10 and x−y=4. What is x?",type:"mc",opts:["5","8","6","7"],ans:"7",exp:"Add equations: 2x=14, x=7. Then y=10−7=3!"},
+      {q:"Solve: 2x+y=11 and x+y=7. What is x?",type:"input",ans:"4",exp:"Subtract 2nd from 1st: x=4. Then y=7−4=3!"},
+      {q:"Solve: 3x+2y=16 and x+y=7. What is y?",type:"mc",opts:["4","6","2","5"],ans:"5",exp:"From 2nd: x=7−y. Sub: 3(7−y)+2y=16. 21−y=16. y=5!"},
+      {q:"If 2a+3b=17 and a+b=7, find a.",type:"input",ans:"4",exp:"From 2nd: a=7−b. Sub: 2(7−b)+3b=17. 14+b=17. b=3. a=4!"},
+    ]},
+    {id:'alg6_quadratic',name:'Quadratics & Factorising',desc:'Expand and factorise expressions',icon:'📐',questions:[
+      {q:"Expand: (x+3)(x+2)",type:"mc",opts:["x²+6x+6","x²+5x+5","x²+5x+6","x²+6"],ans:"x²+5x+6",exp:"(x+3)(x+2) = x²+2x+3x+6 = x²+5x+6!"},
+      {q:"Factorise: x²+7x+12",type:"mc",opts:["(x+4)(x+3)","(x+6)(x+2)","(x+12)(x+1)","(x+4)(x+2)"],ans:"(x+4)(x+3)",exp:"Find two numbers that multiply to 12 and add to 7: 4 and 3!"},
+      {q:"Solve: x²−9=0. What are the values of x?",type:"mc",opts:["x=3 only","x=±9","x=±3","x=9 only"],ans:"x=±3",exp:"x²=9. x=+3 or x=−3 (because (−3)²=9 too)!"},
+      {q:"Expand and simplify: (2x+1)²",type:"mc",opts:["4x²+1","2x²+4x+1","4x²+2x+1","4x²+4x+1"],ans:"4x²+4x+1",exp:"(2x+1)² = 4x²+2(2x)(1)+1 = 4x²+4x+1!"},
+    ]},
+    {id:'alg6_inequalities',name:'Inequalities',desc:'Solve and represent inequalities',icon:'⚖️',questions:[
+      {q:"Solve: 3x + 4 > 19. What values does x have?",type:"mc",opts:["x > 4","x > 6","x > 5","x > 7"],ans:"x > 5",exp:"3x > 15. x > 5!"},
+      {q:"Solve: 2x − 7 ≤ 9",type:"mc",opts:["x ≤ 9","x ≤ 8","x ≤ 6","x ≤ 7"],ans:"x ≤ 8",exp:"2x ≤ 16. x ≤ 8!"},
+      {q:"If −3 < x ≤ 4 and x is an integer, how many values can x take?",type:"input",ans:"7",exp:"x can be: −2,−1,0,1,2,3,4 — that's 7 values!"},
+      {q:"Solve: 5 − 2x < 11",type:"mc",opts:["x > −3","x > 3","x < 3","x < −3"],ans:"x > −3",exp:"−2x < 6. Divide by −2 (flip sign!): x > −3!"},
+    ]},
+  ]},
+  {id:'ratio6',label:'Ratio & Proportion',emoji:'⚖️',color:'#f97316',tasks:[
+    {id:'rat6_hard',name:'Harder Ratio Problems',desc:'Multi-step ratio challenges',icon:'🧩',questions:[
+      {q:"Share £360 in the ratio 2:3:4. What is the largest share?",type:"mc",opts:["£140","£160","£120","£180"],ans:"£160",exp:"9 parts total. Each part = £40. Largest = 4×£40 = £160!"},
+      {q:"Recipe uses flour:sugar in ratio 5:2. If you use 350g flour, how much sugar?",type:"input",ans:"140",exp:"5 parts = 350g. 1 part = 70g. Sugar = 2×70 = 140g!"},
+      {q:"The ratio of boys to girls in a school is 7:8. There are 280 boys. How many students in total?",type:"mc",opts:["560","520","540","600"],ans:"600",exp:"7 parts = 280. 1 part = 40. Total parts = 15. Total = 600!"},
+      {q:"Orange and apple juice are mixed in ratio 3:5. The total is 640ml. How much orange juice?",type:"input",ans:"240",exp:"8 parts total = 640ml. Each part = 80ml. Orange = 3×80 = 240ml!"},
+    ]},
+    {id:'rat6_direct',name:'Direct Proportion',desc:'If one doubles, so does the other',icon:'📈',questions:[
+      {q:"5 workers build a wall in 12 days. How long for 3 workers (same rate)?",type:"mc",opts:["15 days","24 days","18 days","20 days"],ans:"20 days",exp:"5×12=60 worker-days. 60÷3 = 20 days!"},
+      {q:"A car travels 270km in 3 hours. At the same speed, how far in 7 hours?",type:"input",ans:"630",exp:"Speed = 270÷3 = 90km/h. Distance = 90×7 = 630km!"},
+      {q:"If 8 identical items weigh 3.6kg, what do 15 items weigh?",type:"mc",opts:["6.5kg","7kg","6.75kg","6.25kg"],ans:"6.75kg",exp:"1 item = 3.6÷8 = 0.45kg. 15 items = 15×0.45 = 6.75kg!"},
+      {q:"A tap fills 240L in 4 hours. How long to fill 900L?",type:"input",ans:"15",exp:"Rate = 240÷4 = 60L/hr. Time = 900÷60 = 15 hours!"},
+    ]},
+  ]},
+  {id:'stats6',label:'Statistics',emoji:'📊',color:'#ec4899',tasks:[
+    {id:'stats6_adv',name:'Advanced Averages',desc:'Weighted means and grouped data',icon:'📊',questions:[
+      {q:"Mean of 6 values is 9. A 7th value of 16 is added. What is the new mean?",type:"mc",opts:["9.5","10.5","11","10"],ans:"10",exp:"Old sum = 6×9=54. New sum = 54+16=70. New mean = 70÷7=10!"},
+      {q:"Class A (20 students) mean score = 75. Class B (30 students) mean = 65. What is the combined mean?",type:"input",ans:"69",exp:"Combined sum = 20×75+30×65 = 1500+1950=3450. Mean=3450÷50=69!"},
+      {q:"In a grouped frequency table, the modal class of heights is 160≤h<170. What does this mean?",type:"mc",opts:["No one is exactly 165","Most people are in this height range","All heights are between 160 and 170","The mean is 165"],ans:"Most people are in this height range",exp:"The modal class is the group with the highest frequency!"},
+      {q:"Median of: 3, 5, 7, x, 13, 17, 20 is 9. Find x.",type:"input",ans:"9",exp:"With 7 values, median is the 4th value. So x = 9!"},
+    ]},
+    {id:'stats6_prob',name:'Probability',desc:'Calculate theoretical probability',icon:'🎲',questions:[
+      {q:"A bag has 3 red, 5 blue, 2 green marbles. P(red)?",type:"mc",opts:["1/4","3/8","3/10","1/3"],ans:"3/10",exp:"3 red out of 10 total. P(red) = 3/10!"},
+      {q:"P(event A) = 0.3. What is P(not A)?",type:"input",ans:"0.7",exp:"P(not A) = 1 − P(A) = 1 − 0.3 = 0.7!"},
+      {q:"Two coins are flipped. What is P(two heads)?",type:"mc",opts:["1/2","1/6","1/3","1/4"],ans:"1/4",exp:"P(HH) = 1/2 × 1/2 = 1/4!"},
+      {q:"A dice is rolled 120 times. How many times would you expect a 4?",type:"input",ans:"20",exp:"P(4) = 1/6. Expected = 120 × 1/6 = 20!"},
+    ]},
+  ]},
+  {id:'num6',label:'Number & Place Value',emoji:'🔢',color:'#3b82f6',tasks:[
+    {id:'num6_surds',name:'Powers, Roots & Standard Form',desc:'Scientific notation and surds',icon:'⚡',questions:[
+      {q:"What is 2⁵?",type:"mc",opts:["16","64","10","32"],ans:"32",exp:"2⁵ = 2×2×2×2×2 = 32!"},
+      {q:"Write 4,500,000 in standard form.",type:"mc",opts:["4.5×10⁷","45×10⁵","4.5×10⁵","4.5×10⁶"],ans:"4.5×10⁶",exp:"4,500,000 = 4.5 × 1,000,000 = 4.5 × 10⁶!"},
+      {q:"What is √144?",type:"input",ans:"12",exp:"√144 = 12 because 12×12=144!"},
+      {q:"Calculate (3²)³",type:"mc",opts:["729","81","243","512"],ans:"729",exp:"(3²)³ = 3⁶ = 729. Multiply the powers: 2×3=6!"},
+    ]},
+    {id:'num6_factors',name:'Factors, Multiples & Primes',desc:'HCF, LCM and prime factorisation',icon:'🔬',questions:[
+      {q:"Find the HCF of 36 and 48.",type:"mc",opts:["6","18","9","12"],ans:"12",exp:"36=2²×3², 48=2⁴×3. HCF=2²×3=12!"},
+      {q:"Find the LCM of 8 and 12.",type:"input",ans:"24",exp:"8=2³, 12=2²×3. LCM=2³×3=24!"},
+      {q:"Express 120 as a product of prime factors.",type:"mc",opts:["2×60","2³×3×5","4×30","2²×3×10"],ans:"2³×3×5",exp:"120=2×60=2×2×30=2×2×2×15=2×2×2×3×5=2³×3×5!"},
+      {q:"What is the HCF of 75 and 90?",type:"input",ans:"15",exp:"75=3×5², 90=2×3²×5. HCF=3×5=15!"},
+    ]},
+  ]},
+]},
+}; // end DATA
+
+// ── TOPIC HIGH SCORE STORAGE (session) ──
+const savedScores = {};
+
+// ── SCREEN CONTROL ──────────────────────────────────────────────────────
+function showOnly(id){
+  ['scr-year','scr-topic','scr-task','scr-quiz','scr-win'].forEach(s=>{
+    document.getElementById(s).style.display=(s===id)?'block':'none';
+  });
+}
+function goYear(){ selYear=null; selTopic=null; selTask=null; showOnly('scr-year'); }
+function goTopic(){ selTask=null; if(!selYear) return goYear(); showOnly('scr-topic'); renderTopics(); }
+function goTask(){ if(!selTopic) return goTopic(); showOnly('scr-task'); renderTasks(); }
+
+// ── YEAR SELECT ──────────────────────────────────────────────────────────
+document.querySelectorAll('.yr-btn').forEach(btn=>{
+  btn.onclick=()=>{ selYear=parseInt(btn.dataset.yr); showOnly('scr-topic'); renderTopics(); };
+});
+
+function getTaskScore(taskId){ return savedScores[taskId]||0; }
+function getTopicBestScore(topicId){
+  const yr = DATA[selYear];
+  if(!yr) return 0;
+  const topic = yr.topics.find(t=>t.id===topicId);
+  if(!topic) return 0;
+  return Math.max(...topic.tasks.map(t=>getTaskScore(t.id)));
+}
+
+function renderTopics(){
+  const yr=DATA[selYear];
+  document.getElementById('bc-yr').textContent=`Year ${selYear}`;
+  const grid=document.getElementById('topic-grid');
+  grid.innerHTML='';
+  yr.topics.forEach(t=>{
+    const best=getTopicBestScore(t.id);
+    const sc=scoreClass(best);
+    const card=document.createElement('div');
+    card.className='topic-card';
+    card.style.setProperty('--tc',t.color);
+    card.innerHTML=`
+      <div class="topic-score-badge ${best===100?'max':best>=70?'high':best>=40?'mid':best>0?'low':'zero'}">${best}</div>
+      <span class="te">${t.emoji}</span>
+      <span class="tl">${t.label}</span>
+      <span class="td">${t.tasks.length} tasks</span>`;
+    card.onclick=()=>{ selTopic=t; showOnly('scr-task'); renderTasks(); };
+    grid.appendChild(card);
+  });
+}
+
+function renderTasks(){
+  document.getElementById('bc-topic-yr').textContent=`Year ${selYear}`;
+  document.getElementById('bc-topic-name').textContent=selTopic.label;
+  document.getElementById('task-lbl').textContent=`${selTopic.emoji} ${selTopic.label} — Choose a Task`;
+  const grid=document.getElementById('task-grid');
+  grid.innerHTML='';
+  selTopic.tasks.forEach(task=>{
+    const best=getTaskScore(task.id);
+    const sc=scoreClass(best);
+    const fillCls=fillClass(best);
+    const card=document.createElement('div');
+    card.className='task-card';
+    card.style.setProperty('--tc',selTopic.color);
+    card.innerHTML=`
+      <div class="task-icon">${task.icon}</div>
+      <div style="flex:1">
+        <div class="task-name">${task.name}</div>
+        <div class="task-desc">${task.desc}</div>
+        <div class="task-score-row">
+          <div class="task-score-track"><div class="task-score-fill ${fillCls}" style="width:${best}%"></div></div>
+          <div class="task-score-num" style="color:${best>=100?'#8b5cf6':best>=70?'#22c55e':best>=40?'#eab308':best>0?'#f97316':'#9ca3af'}">${best}</div>
+        </div>
+      </div>`;
+    card.onclick=()=>{ selTask=task; startQuiz(); };
+    grid.appendChild(card);
+  });
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────────────────
+let qPool=[];
+let qIdx=0;
+// smartScore already declared above
+
+function startQuiz(){
+  smartScore=0; combo=0; bestCombo=0; qTotal=0; qCorrect=0;
+  // Build an infinite-ish rotating pool
+  qPool=[...selTask.questions].sort(()=>Math.random()-.5);
+  qIdx=0;
+  answered=false;
+  document.getElementById('bc-q-yr').textContent=`Year ${selYear}`;
+  document.getElementById('bc-q-topic').textContent=selTopic.label;
+  document.getElementById('bc-q-task').textContent=selTask.name;
+  renderGauge();
+  showOnly('scr-quiz');
+  showQ();
+}
+
+function getNextQ(){
+  // Rotate through pool, reshuffling when exhausted
+  if(qIdx>=qPool.length){ qPool=[...selTask.questions].sort(()=>Math.random()-.5); qIdx=0; }
+  return qPool[qIdx++];
+}
+
+function showQ(){
+  if(smartScore>=100){ endQuiz(); return; }
+  curQ=getNextQ();
+  answered=false;
+  qTotal++;
+  document.getElementById('q-badge').textContent=`${selTopic.emoji} ${selTopic.label}`;
+  const comboEl=document.getElementById('q-combo');
+  if(combo>=2){ comboEl.textContent=`🔥 ${combo}x Combo! +${Math.min(combo*3,12)} bonus`; comboEl.className='q-combo show'; }
+  else comboEl.className='q-combo';
+  document.getElementById('q-text').textContent=curQ.q;
+  document.getElementById('prog-fill').style.width=(smartScore)+'%';
+  document.getElementById('prog-txt').textContent=`Q${qTotal} · Score: ${Math.round(smartScore)}`;
+  document.getElementById('fb').className='fb';
+  document.getElementById('next-btn').className='next-btn';
+  document.getElementById('ai-box').className='ai-box';
+  document.getElementById('ai-btn').style.display='inline-flex';
+
+  const area=document.getElementById('opts-area');
+  area.innerHTML='';
+  if(curQ.type==='mc'){
+    const g=document.createElement('div');
+    g.className='opts-grid';
+    ['A','B','C','D'].forEach((lbl,i)=>{
+      if(i>=curQ.opts.length) return;
+      const b=document.createElement('button');
+      b.className='opt';
+      b.innerHTML=`<span class="ok">${lbl}</span>${curQ.opts[i]}`;
+      b.onclick=()=>checkMC(curQ.opts[i],b,g);
+      g.appendChild(b);
+    });
+    area.appendChild(g);
+  } else {
+    const row=document.createElement('div');
+    row.className='inp-row';
+    const inp=document.createElement('input');
+    inp.className='ans-inp';
+    inp.type='text';
+    inp.placeholder='Type your answer...';
+    inp.id='ainp';
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') checkInput(); });
+    const btn=document.createElement('button');
+    btn.className='chk-btn';
+    btn.textContent='✓ Check!';
+    btn.onclick=checkInput;
+    row.appendChild(inp); row.appendChild(btn);
+    area.appendChild(row);
+    setTimeout(()=>inp.focus(),100);
+  }
+}
+
+function checkMC(chosen,btn,grid){
+  if(answered) return;
+  answered=true;
+  const correct=chosen.toString()===curQ.ans.toString();
+  Array.from(grid.children).forEach(b=>{
+    b.disabled=true;
+    const txt=b.textContent.replace(b.querySelector('.ok')?.textContent||'','').trim();
+    if(txt===curQ.ans.toString()) b.classList.add('correct');
+    if(b===btn&&!correct) b.classList.add('wrong');
+  });
+  handleResult(correct);
+}
+
+function checkInput(){
+  if(answered) return;
+  const inp=document.getElementById('ainp');
+  const val=inp.value.trim();
+  if(!val){ inp.focus(); return; }
+  answered=true;
+  inp.disabled=true;
+  if(inp.nextElementSibling) inp.nextElementSibling.disabled=true;
+  const clean=s=>s.toString().toLowerCase().replace(/[£$\s%,°]/g,'').replace('−','-');
+  const correct=clean(val)===clean(curQ.ans)||
+    (!isNaN(parseFloat(val))&&!isNaN(parseFloat(curQ.ans))&&Math.abs(parseFloat(val)-parseFloat(curQ.ans))<0.051);
+  inp.classList.add(correct?'correct':'wrong');
+  handleResult(correct);
+}
+
+function handleResult(correct){
+  if(correct){ combo++; if(combo>bestCombo) bestCombo=combo; qCorrect++; spawnConfetti(); }
+  else combo=0;
+  updateSmartScore(correct);
+
+  // save high score
+  const prev=getTaskScore(selTask.id);
+  if(Math.round(smartScore)>prev) savedScores[selTask.id]=Math.round(smartScore);
+
+  const fb=document.getElementById('fb');
+  const head=document.getElementById('fb-head');
+  const body=document.getElementById('fb-body');
+  if(correct){
+    fb.className='fb ok-fb show';
+    const msgs=combo>=3?[`🔥 ${combo} in a row! COMBO BONUS! +${Math.min(combo*3,12)} pts!`,'🚀 Incredible streak! Keep going!','🌟 YOU ARE ON FIRE!']:
+      ['✅ Correct! Well done! 🎉','⭐ Great job!','🎊 Brilliant!','💪 Nailed it!'];
+    head.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  } else {
+    fb.className='fb ng-fb show';
+    head.textContent=`💡 Not quite! Answer: ${curQ.ans}`;
+  }
+  body.textContent=curQ.exp;
+  document.getElementById('next-btn').className='next-btn show';
+
+  if(smartScore>=100){
+    document.getElementById('next-btn').textContent='🏆 See Your Results! →';
+  }
+}
+
+function nextQ(){
+  if(smartScore>=100){ endQuiz(); return; }
+  const card=document.getElementById('q-card');
+  card.style.animation='none';
+  void card.offsetWidth;
+  card.style.animation='cardIn .4s cubic-bezier(.34,1.56,.64,1)';
+  showQ();
+}
+
+async function getAI(){
+  const btn=document.getElementById('ai-btn');
+  const box=document.getElementById('ai-box');
+  const content=document.getElementById('ai-content');
+  btn.style.display='none';
+  box.className='ai-box show';
+  content.innerHTML=`<div class="dots"><span></span><span></span><span></span></div> Thinking...`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+        messages:[{role:"user",content:`You are a fun, encouraging maths tutor for a Year ${selYear} student aged ${5+selYear}–${6+selYear}. Explain this maths question in a simple, warm, enthusiastic way with emojis and a memory trick. 2-3 sentences max!\n\nQuestion: ${curQ.q}\nAnswer: ${curQ.ans}`}]})});
+    const data=await res.json();
+    content.innerHTML=data.content?.map(c=>c.text||'').join('')||curQ.exp;
+  } catch{ content.innerHTML=curQ.exp; }
+}
+
+function spawnConfetti(){
+  const ems=['⭐','🎉','✨','🌟','🎊','💫','🏆','👏','🥳','🎈'];
+  for(let i=0;i<6;i++) setTimeout(()=>{
+    const el=document.createElement('div');
+    el.className='cfetti';
+    const dx=(Math.random()-.5)*240,dy=-80-Math.random()*140;
+    el.style.cssText=`left:${15+Math.random()*70}vw;top:${25+Math.random()*40}vh;--fly:translate(${dx}px,${dy}px);`;
+    el.textContent=ems[Math.floor(Math.random()*ems.length)];
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),1400);
+  },i*90);
+}
+
+function endQuiz(){
+  showOnly('scr-win');
+  const finalScore=Math.round(smartScore);
+  const acc=qTotal>0?Math.round((qCorrect/qTotal)*100):0;
+  document.getElementById('win-score').textContent=finalScore;
+  document.getElementById('ws-correct').textContent=qCorrect;
+  document.getElementById('ws-total').textContent=qTotal;
+  document.getElementById('ws-combo').textContent=bestCombo+'🔥';
+  document.getElementById('ws-acc').textContent=acc+'%';
+
+  let em,st,msg;
+  if(finalScore>=100){ em='🏆';st='🌟🌟🌟';msg='PERFECT SmartScore! You are a MATHS MASTER! 🎊';}
+  else if(finalScore>=80){ em='🎉';st='⭐⭐⭐';msg='Fantastic work! So close to perfection! 💪';}
+  else if(finalScore>=50){ em='😊';st='⭐⭐';msg='Great effort! Keep practising to reach 100! 📚';}
+  else{ em='💪';st='⭐';msg="Don't give up! Each question makes you smarter! 🌱";}
+  document.getElementById('win-mascot').textContent=em;
+  document.getElementById('win-stars').textContent=st;
+  document.getElementById('win-msg').textContent=msg;
+  for(let i=0;i<10;i++) setTimeout(spawnConfetti,i*150);
+}
+
+function replayTask(){ startQuiz(); }
+</script>
+</body>
+</html>
