@@ -7,13 +7,6 @@ function toTitleFromFolder(folderName) {
     .join(' ');
 }
 
-function initialsFor(title) {
-  const parts = title.split(' ').filter(Boolean);
-  if (!parts.length) return 'T';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[1][0]).toUpperCase();
-}
-
 function colorFor(folder) {
   let hash = 0;
   for (let i = 0; i < folder.length; i += 1) {
@@ -34,9 +27,14 @@ function createToolSwatch(tool) {
 
   const thumb = document.createElement('div');
   thumb.className = 'card-thumb';
-  thumb.textContent = initialsFor(title);
+  thumb.textContent = title;
   thumb.style.background = `linear-gradient(145deg, ${accent}, #0f172a)`;
   thumb.style.color = '#fff';
+  thumb.style.fontSize = '1rem';
+  thumb.style.fontWeight = '700';
+  thumb.style.padding = '1rem';
+  thumb.style.textAlign = 'center';
+  thumb.style.lineHeight = '1.2';
 
   const body = document.createElement('div');
   body.className = 'card-body';
