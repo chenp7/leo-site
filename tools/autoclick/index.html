@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autoclick — Leo Chen Tools</title>
+  <meta
+    name="description"
+    content="Autoclick helper script for macOS. Simulate repeated mouse clicks with count and interval settings."
+  />
+  <link rel="stylesheet" href="../../css/style.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="../../index.html" class="nav-logo">LEO CHEN</a>
+    <button class="nav-toggle" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links">
+      <li><a href="../../games/index.html">Games</a></li>
+      <li><a href="../../art/index.html">Art &amp; Woodwork</a></li>
+      <li><a href="../index.html" class="active">Tools</a></li>
+      <li><a href="../../about.html">About</a></li>
+      <li><a href="../../feedback.html">Feedback</a></li>
+    </ul>
+  </nav>
+
+  <main class="container page-content">
+    <div class="page-header">
+      <p class="section-label">// autoclick</p>
+      <h1>Autoclick</h1>
+    </div>
+
+    <p class="text-muted mb-3" style="max-width:700px;">
+      A small macOS Python utility that clicks your current mouse position repeatedly.
+      Set how many clicks you want and how fast they run.
+    </p>
+    <p class="mb-3">
+      <a class="btn btn-primary" href="./autoclick.py" download="autoclick.py">Download Script</a>
+    </p>
+
+    <h2>Run It</h2>
+    <pre><code>python3 autoclick.py -n 100 -i 0.01</code></pre>
+    <p class="text-muted mb-3">After you start it, there is a 5-second delay before clicking begins.</p>
+
+    <h2>Options</h2>
+    <ul class="mb-3">
+      <li><code>-n</code> / <code>--count</code>: Number of clicks (default: <code>100</code>)</li>
+      <li><code>-i</code> / <code>--interval</code>: Seconds between clicks (default: <code>0.01</code>)</li>
+    </ul>
+
+    <h2>Install Dependency</h2>
+    <pre><code>python3 -m pip install --user pyobjc-framework-Quartz</code></pre>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-copy">&copy; 2025 Leo Chen</span>
+        <ul class="footer-links">
+          <li><a href="../../games/index.html">Games</a></li>
+          <li><a href="../../about.html">About</a></li>
+          <li><a href="../../feedback.html">Feedback</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
