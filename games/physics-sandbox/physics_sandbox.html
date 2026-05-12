@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics Sandbox</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161e;
+    --bg3: #1a1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --accent: #378ADD;
+    --accent2: #1D9E75;
+    --danger: #E24B4A;
+    --warn: #BA7517;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── HEADER ── */
+  #header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    background: var(--bg2);
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  #logo {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  #logo span { color: var(--accent); }
+
+  /* ── TOOLBAR ── */
+  #toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sep {
+    width: 0.5px;
+    height: 18px;
+    background: var(--border2);
+    margin: 0 3px;
+    flex-shrink: 0;
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 5px 11px;
+    border-radius: 5px;
+    border: 0.5px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text2);
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+    white-space: nowrap;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .btn:hover { background: rgba(55,138,221,0.12); color: var(--accent); border-color: rgba(55,138,221,0.4); }
+  .btn.active { background: rgba(55,138,221,0.18); color: var(--accent); border-color: rgba(55,138,221,0.55); font-weight: 600; }
+  .btn.danger:hover, .btn.danger.active { background: rgba(226,75,74,0.15); color: var(--danger); border-color: rgba(226,75,74,0.5); }
+  .btn.success { color: var(--accent2); }
+  .btn.success:hover, .btn.success.active { background: rgba(29,158,117,0.15); border-color: rgba(29,158,117,0.5); }
+
+  /* ── PARAMS PANEL ── */
+  #params {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 7px 18px;
+    background: var(--bg2);
+    border-bottom: 0.5px solid var(--border);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .param {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .param-label {
+    font-size: 10px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .param-val {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 32px;
+    text-align: right;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 90px;
+    height: 4px;
+    background: var(--border2);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    transition: transform 0.1s;
+  }
+  input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.2); }
+  input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+
+  /* ── CANVAS AREA ── */
+  #canvas-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  #c {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+  }
+
+  /* ── TOOLTIP ── */
+  #tooltip {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(13,15,20,0.85);
+    border: 0.5px solid var(--border2);
+    color: var(--text2);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity 0.3s;
+  }
+
+  /* ── STATS BAR ── */
+  #stats {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    background: var(--bg2);
+    border-top: 0.5px solid var(--border);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-right: 0.5px solid var(--border);
+    white-space: nowrap;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .stat-val {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 40px;
+    text-align: right;
+  }
+  .stat-val.green { color: var(--accent2); }
+  .stat-val.yellow { color: #E8B44A; }
+
+  /* ── MINI HELP ── */
+  #help-overlay {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    background: rgba(13,15,20,0.92);
+    border: 0.5px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--text2);
+    line-height: 1.8;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    max-width: 220px;
+  }
+  #help-overlay h3 {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  #help-overlay kbd {
+    background: var(--bg3);
+    border: 0.5px solid var(--border2);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text);
+  }
+
+  /* ── CONTEXT MENU ── */
+  #ctx-menu {
+    position: absolute;
+    background: var(--bg2);
+    border: 0.5px solid var(--border2);
+    border-radius: 6px;
+    padding: 4px 0;
+    z-index: 100;
+    min-width: 140px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    display: none;
+  }
+  .ctx-item {
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text2);
+    transition: background 0.1s, color 0.1s;
+  }
+  .ctx-item:hover { background: var(--bg3); color: var(--text); }
+  .ctx-item.red:hover { color: var(--danger); }
+  .ctx-sep { height: 0.5px; background: var(--border); margin: 3px 0; }
+
+  /* ── GRAVITY INDICATOR ── */
+  #grav-indicator {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 48px;
+    height: 48px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER / TOOLBAR -->
+  <div id="header">
+    <div id="logo">PHYS<span>SIM</span></div>
+    <div id="toolbar">
+      <span style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-right:2px;">tool</span>
+
+      <button class="btn active" id="t-ball"    onclick="setTool('ball')"   title="Click-drag to spawn, drag distance = size">ball</button>
+      <button class="btn"        id="t-box"     onclick="setTool('box')"    title="Drag to set size">box</button>
+      <button class="btn"        id="t-polygon" onclick="setTool('polygon')" title="Random polygon">poly</button>
+      <button class="btn"        id="t-rope"    onclick="setTool('rope')"   title="Click 2 bodies to link with joint">rope</button>
+      <button class="btn"        id="t-burst"   onclick="setTool('burst')"  title="Click to explode particles">burst</button>
+      <button class="btn"        id="t-drag"    onclick="setTool('drag')"   title="Grab and throw bodies">drag</button>
+      <button class="btn"        id="t-pin"     onclick="setTool('pin')"    title="Pin/unpin body in place">pin</button>
+      <button class="btn"        id="t-explode" onclick="setTool('explode')" title="Shockwave at click point">explode</button>
+      <button class="btn"        id="t-erase"   onclick="setTool('erase')"  title="Click body to remove">erase</button>
+
+      <div class="sep"></div>
+
+      <button class="btn" onclick="cycleGravity()">gravity: <span id="grav-lbl">↓ down</span></button>
+      <button class="btn" id="wind-btn" onclick="toggleWind()">wind: <span id="wind-lbl">off</span></button>
+      <button class="btn success" onclick="spawnRain()">rain</button>
+      <button class="btn success" onclick="spawnStack()">stack</button>
+      <button class="btn success" onclick="spawnNewton()">newton</button>
+      <button class="btn success" onclick="spawnChain()">chain</button>
+
+      <div class="sep"></div>
+
+      <button class="btn" id="pause-btn" onclick="togglePause()">⏸ pause</button>
+      <button class="btn danger" onclick="clearAll()">clear</button>
+      <button class="btn" onclick="toggleHelp()" id="help-btn">?</button>
+    </div>
+  </div>
+
+  <!-- PARAMS -->
+  <div id="params">
+    <div class="param">
+      <span class="param-label">size</span>
+      <input type="range" id="sl-size" min="5" max="65" value="18">
+      <span class="param-val" id="lbl-size">18</span>
+    </div>
+    <div class="param">
+      <span class="param-label">bounce</span>
+      <input type="range" id="sl-bounce" min="0" max="100" value="60">
+      <span class="param-val" id="lbl-bounce">0.60</span>
+    </div>
+    <div class="param">
+      <span class="param-label">friction</span>
+      <input type="range" id="sl-friction" min="0" max="100" value="30">
+      <span class="param-val" id="lbl-friction">0.30</span>
+    </div>
+    <div class="param">
+      <span class="param-label">gravity</span>
+      <input type="range" id="sl-grav" min="-300" max="300" value="80">
+      <span class="param-val" id="lbl-grav">80</span>
+    </div>
+    <div class="param">
+      <span class="param-label">substeps</span>
+      <input type="range" id="sl-sub" min="1" max="8" value="3">
+      <span class="param-val" id="lbl-sub">3</span>
+    </div>
+    <div class="param">
+      <span class="param-label">max bodies</span>
+      <input type="range" id="sl-max" min="10" max="600" value="300" step="10">
+      <span class="param-val" id="lbl-max">300</span>
+    </div>
+  </div>
+
+  <!-- CANVAS -->
+  <div id="canvas-wrap">
+    <canvas id="c"></canvas>
+
+    <!-- gravity indicator -->
+    <svg id="grav-indicator" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="24" cy="24" r="22" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+      <line id="grav-arrow" x1="24" y1="24" x2="24" y2="40" stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="24" cy="24" r="3" fill="#378ADD" opacity="0.8"/>
+    </svg>
+
+    <div id="tooltip">click to spawn • drag to size • right-click body for options</div>
+
+    <div id="help-overlay">
+      <h3>shortcuts</h3>
+      <kbd>space</kbd> pause/resume<br>
+      <kbd>c</kbd> clear all<br>
+      <kbd>g</kbd> cycle gravity<br>
+      <kbd>w</kbd> toggle wind<br>
+      <kbd>1-9</kbd> switch tools<br>
+      <kbd>scroll</kbd> change size<br>
+      <kbd>r</kbd> rain spawn<br>
+      <kbd>right-click</kbd> body menu
+    </div>
+
+    <div id="ctx-menu">
+      <div class="ctx-item" onclick="ctxPin()">📌 pin / unpin</div>
+      <div class="ctx-item" onclick="ctxSleep()">💤 toggle sleep</div>
+      <div class="ctx-item" onclick="ctxBoost()">⚡ boost velocity</div>
+      <div class="ctx-item" onclick="ctxFreeze()">🧊 freeze</div>
+      <div class="ctx-sep"></div>
+      <div class="ctx-item red" onclick="ctxDelete()">🗑 delete</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="stats">
+    <div class="stat"><span class="stat-label">bodies</span><span class="stat-val" id="s-bodies">0</span></div>
+    <div class="stat"><span class="stat-label">joints</span><span class="stat-val" id="s-joints">0</span></div>
+    <div class="stat"><span class="stat-label">fps</span><span class="stat-val green" id="s-fps">—</span></div>
+    <div class="stat"><span class="stat-label">kin. energy</span><span class="stat-val yellow" id="s-energy">0</span></div>
+    <div class="stat"><span class="stat-label">collisions/f</span><span class="stat-val" id="s-colls">0</span></div>
+    <div class="stat"><span class="stat-label">gravity</span><span class="stat-val" id="s-grav-mode">down</span></div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+// ── COLOURS ──────────────────────────────────────────────────────────────────
+const PALETTE = [
+  '#378ADD','#1D9E75','#D85A30','#D4537E',
+  '#BA7517','#7F77DD','#639922','#E24B4A',
+  '#5DCAA5','#EF9F27','#85B7EB','#F09595'
+];
+
+function randColor(){ return PALETTE[Math.floor(Math.random()*PALETTE.length)]; }
+
+// ── CANVAS SETUP ─────────────────────────────────────────────────────────────
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+function resize(){
+  const wrap = document.getElementById('canvas-wrap');
+  canvas.width  = wrap.clientWidth;
+  canvas.height = wrap.clientHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let bodies   = [];
+let joints   = [];
+let paused   = false;
+let tool     = 'ball';
+let gravMode = 'down';
+let windOn   = false;
+let helpVisible = true;
+let gravStrength = 80;
+let maxBodies = 300;
+let substeps  = 3;
+let collCount = 0;
+
+let mouse = { x:0, y:0, down:false, startX:0, startY:0, button:0 };
+let dragBody = null;
+let dragOffX = 0, dragOffY = 0;
+let ropeAnchor = null;
+let ctxTarget  = null;
+
+let lastTime = 0, fps = 0, fpsAcc = 0, fpsFrames = 0;
+
+// ── SLIDER WIRING ─────────────────────────────────────────────────────────────
+function slVal(id){ return +document.getElementById(id).value; }
+
+const sliders = {
+  'sl-size':    v => {},
+  'sl-bounce':  v => {},
+  'sl-friction':v => {},
+  'sl-grav':    v => { gravStrength = v; },
+  'sl-sub':     v => { substeps = v; },
+  'sl-max':     v => { maxBodies = v; }
+};
+
+['sl-size','sl-bounce','sl-friction','sl-grav','sl-sub','sl-max'].forEach(id => {
+  const el = document.getElementById(id);
+  const lbl = document.getElementById('lbl-'+id.slice(3));
+  function update(){
+    const v = +el.value;
+    sliders[id]?.(v);
+    if(id==='sl-bounce')       lbl.textContent = (v/100).toFixed(2);
+    else if(id==='sl-friction') lbl.textContent = (v/100).toFixed(2);
+    else                        lbl.textContent = v;
+  }
+  el.addEventListener('input', update);
+  update();
+});
+
+function getSize()    { return slVal('sl-size'); }
+function getBounce()  { return slVal('sl-bounce') / 100; }
+function getFriction(){ return slVal('sl-friction') / 100; }
+
+// ── BODY CLASS ────────────────────────────────────────────────────────────────
+class Body {
+  constructor(x, y, type, size, color){
+    this.x  = x;  this.y  = y;
+    this.vx = 0;  this.vy = 0;
+    this.ax = 0;  this.ay = 0;
+    this.angle = 0; this.va = 0;
+    this.type    = type;
+    this.size    = size;
+    this.color   = color || randColor();
+    this.bounce  = getBounce();
+    this.friction= getFriction();
+    this.mass    = Math.PI * size * size * (type==='ball' ? 0.04 : 0.07);
+    this.pinned  = false;
+    this.sleeping= false;
+    this.sleepFrames = 0;
+    this.trail   = [];
+    this.sides   = (type==='polygon') ? (3 + Math.floor(Math.random()*6)) : 0;
+    this.id      = ++Body._id;
+  }
+}
+Body._id = 0;
+
+// ── SPAWN HELPERS ─────────────────────────────────────────────────────────────
+function spawnBody(x, y, type, size, vx, vy, color){
+  if(bodies.length >= maxBodies) bodies.shift();
+  const b = new Body(x, y, type || 'ball', size || getSize(), color);
+  b.vx = vx||0; b.vy = vy||0;
+  bodies.push(b);
+  return b;
+}
+
+function spawnRain(){
+  const W = canvas.width;
+  for(let i = 0; i < 30; i++){
+    const b = spawnBody(Math.random()*W, -20, 'ball', 5+Math.random()*14, 0, 60+Math.random()*120);
+  }
+}
+
+function spawnStack(){
+  const cx = canvas.width/2, cy = canvas.height;
+  const types = ['ball','box','polygon'];
+  for(let row = 0; row < 6; row++){
+    for(let col = 0; col < 4; col++){
+      const s = 14;
+      spawnBody(cx - 42 + col*28, cy - 30 - row*35, types[(row+col)%3], s);
+    }
+  }
+}
+
+function spawnNewton(){
+  const cx = canvas.width/2, cy = canvas.height*0.5;
+  const r  = 20;
+  const n  = 5;
+  const totalW = n * r*2;
+  const startX = cx - totalW/2 + r;
+  for(let i = 0; i < n; i++){
+    const b = spawnBody(startX + i*(r*2), cy, 'ball', r);
+    b.bounce  = 0.99;
+    b.friction= 0.005;
+    if(i === 0){
+      // pin top anchor above
+      const anchor = spawnBody(startX - r*2, cy - 120, 'ball', 5);
+      anchor.pinned = true; anchor.color = '#ffffff44';
+      const bLeft = spawnBody(startX - r*2, cy, 'ball', r);
+      bLeft.bounce = 0.99; bLeft.friction = 0.005;
+      joints.push({a:anchor, b:bLeft, len:120, stiff:1.0});
+    }
+  }
+}
+
+function spawnChain(){
+  const cx = canvas.width/2;
+  const seg = 22;
+  const n   = 14;
+  let prev = spawnBody(cx, 40, 'rope', 5);
+  prev.pinned = true;
+  for(let i = 1; i < n; i++){
+    const cur = spawnBody(cx + (Math.random()-0.5)*4, 40 + i*seg, 'rope', 6+Math.random()*8);
+    joints.push({a:prev, b:cur, len:seg, stiff:0.85});
+    prev = cur;
+  }
+}
+
+function clearAll(){ bodies=[]; joints=[]; ropeAnchor=null; }
+
+// ── PHYSICS ───────────────────────────────────────────────────────────────────
+function gravAccel(b){
+  const g = gravStrength;
+  let gx = 0, gy = 0;
+  switch(gravMode){
+    case 'down':   gy =  g; break;
+    case 'up':     gy = -g; break;
+    case 'zero':   break;
+    case 'radial': {
+      const dx = canvas.width/2  - b.x;
+      const dy = canvas.height/2 - b.y;
+      const d  = Math.sqrt(dx*dx+dy*dy) || 1;
+      gx = dx/d * g; gy = dy/d * g;
+      break;
+    }
+    case 'anti': {
+      const dx = b.x - canvas.width/2;
+      const dy = b.y - canvas.height/2;
+      const d  = Math.sqrt(dx*dx+dy*dy) || 1;
+      gx = dx/d * g; gy = dy/d * g;
+      break;
+    }
+    case 'orbit': {
+      const dx = canvas.width/2  - b.x;
+      const dy = canvas.height/2 - b.y;
+      const d  = Math.sqrt(dx*dx+dy*dy) || 1;
+      // centripetal + tangential
+      gx = dy/d * g * 0.6;
+      gy = -dx/d * g * 0.6 + dx/d * g * 0.4;
+      break;
+    }
+  }
+  if(windOn){
+    gx += 45 * Math.sin(Date.now() * 0.0008);
+    gy += 8  * Math.sin(Date.now() * 0.0021);
+  }
+  return {gx, gy};
+}
+
+function integrate(dt){
+  for(const b of bodies){
+    if(b.pinned) continue;
+    const {gx, gy} = gravAccel(b);
+    b.vx += (b.ax + gx) * dt;
+    b.vy += (b.ay + gy) * dt;
+    // air drag
+    const spd = Math.sqrt(b.vx*b.vx + b.vy*b.vy);
+    const drag = 0.003 * spd;
+    b.vx -= b.vx * drag * dt;
+    b.vy -= b.vy * drag * dt;
+
+    b.x  += b.vx * dt;
+    b.y  += b.vy * dt;
+    b.angle += b.va * dt;
+    b.va  *= Math.pow(0.995, dt*60);
+    b.ax = 0; b.ay = 0;
+
+    b.trail.push({x:b.x, y:b.y});
+    if(b.trail.length > 20) b.trail.shift();
+
+    // sleep detection
+    if(spd < 0.5) b.sleepFrames++;
+    else          b.sleepFrames = 0;
+    b.sleeping = b.sleepFrames > 90;
+  }
+}
+
+function wallCollide(){
+  const W = canvas.width, H = canvas.height;
+  for(const b of bodies){
+    if(b.pinned) continue;
+    const r = b.size;
+    if(b.x - r < 0){
+      b.x = r;
+      b.vx = Math.abs(b.vx) * b.bounce;
+      b.va += b.vy * 0.01;
+    }
+    if(b.x + r > W){
+      b.x = W - r;
+      b.vx = -Math.abs(b.vx) * b.bounce;
+      b.va -= b.vy * 0.01;
+    }
+    if(b.y - r < 0){
+      b.y = r;
+      b.vy = Math.abs(b.vy) * b.bounce;
+    }
+    if(b.y + r > H){
+      b.y = H - r;
+      b.vy = -Math.abs(b.vy) * b.bounce;
+      b.vx *= (1 - b.friction * 0.4);
+      b.va *= 0.75;
+      if(Math.abs(b.vy) < 1.5) b.vy = 0;
+    }
+  }
+}
+
+function bodyCollide(){
+  collCount = 0;
+  const n = bodies.length;
+  for(let i = 0; i < n; i++){
+    const a = bodies[i];
+    for(let j = i+1; j < n; j++){
+      const b = bodies[j];
+      if(a.sleeping && b.sleeping) continue;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist2 = dx*dx + dy*dy;
+      const minD  = a.size + b.size;
+      if(dist2 > minD*minD) continue;
+
+      const dist = Math.sqrt(dist2) || 0.001;
+      const nx   = dx/dist, ny = dy/dist;
+      const overlap = (minD - dist) * 0.52;
+
+      const ma = a.pinned ? 1e12 : a.mass;
+      const mb = b.pinned ? 1e12 : b.mass;
+      const total = ma + mb;
+
+      if(!a.pinned){ a.x -= nx * overlap * mb/total; a.y -= ny * overlap * mb/total; }
+      if(!b.pinned){ b.x += nx * overlap * ma/total; b.y += ny * overlap * ma/total; }
+
+      const dvx = b.vx - a.vx, dvy = b.vy - a.vy;
+      const dot  = dvx*nx + dvy*ny;
+      if(dot >= 0) continue;
+
+      const e   = (a.bounce + b.bounce) * 0.5;
+      const imp = -(1+e) * dot / (1/ma + 1/mb);
+      const tx  = -ny, ty = nx; // tangent
+      const tdot= dvx*tx + dvy*ty;
+      const mu  = (a.friction + b.friction) * 0.5;
+      const timp= -tdot * mu;
+
+      if(!a.pinned){
+        a.vx -= (imp/ma)*nx + (timp/ma)*tx;
+        a.vy -= (imp/ma)*ny + (timp/ma)*ty;
+        a.va += (nx*dvy - ny*dvx) * 0.008;
+      }
+      if(!b.pinned){
+        b.vx += (imp/mb)*nx + (timp/mb)*tx;
+        b.vy += (imp/mb)*ny + (timp/mb)*ty;
+        b.va -= (nx*dvy - ny*dvx) * 0.008;
+      }
+      collCount++;
+      b.sleepFrames = 0; a.sleepFrames = 0;
+    }
+  }
+}
+
+function solveJoints(){
+  for(const j of joints){
+    const a = j.a, b = j.b;
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const dist = Math.sqrt(dx*dx+dy*dy) || 0.001;
+    const err  = (dist - j.len) / dist;
+    const s    = (j.stiff || 0.5);
+
+    if(!a.pinned){ a.x += dx*err*s*0.5; a.y += dy*err*s*0.5; }
+    if(!b.pinned){ b.x -= dx*err*s*0.5; b.y -= dy*err*s*0.5; }
+
+    // damp along constraint
+    const nx = dx/dist, ny = dy/dist;
+    const dv = (b.vx-a.vx)*nx + (b.vy-a.vy)*ny;
+    const damp = 0.04;
+    if(!a.pinned){ a.vx += dv*nx*damp; a.vy += dv*ny*damp; }
+    if(!b.pinned){ b.vx -= dv*nx*damp; b.vy -= dv*ny*damp; }
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function drawBody(b){
+  ctx.save();
+  ctx.translate(b.x, b.y);
+
+  // trail
+  if(b.trail.length > 3 && !b.sleeping){
+    ctx.beginPath();
+    ctx.moveTo(b.trail[0].x - b.x, b.trail[0].y - b.y);
+    for(let i = 1; i < b.trail.length; i++)
+      ctx.lineTo(b.trail[i].x - b.x, b.trail[i].y - b.y);
+    ctx.strokeStyle = b.color + '33';
+    ctx.lineWidth   = b.size * 0.45;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    ctx.stroke();
+  }
+
+  ctx.rotate(b.angle);
+
+  if(b.type === 'ball'){
+    ctx.beginPath();
+    ctx.arc(0, 0, b.size, 0, Math.PI*2);
+    ctx.fillStyle = b.sleeping ? b.color + '66' : b.color;
+    ctx.fill();
+    // specular
+    ctx.beginPath();
+    ctx.arc(-b.size*0.28, -b.size*0.28, b.size*0.26, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    ctx.fill();
+    // rim
+    ctx.beginPath();
+    ctx.arc(0, 0, b.size, 0, Math.PI*2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+  } else if(b.type === 'box'){
+    const s = b.size;
+    ctx.fillStyle = b.sleeping ? b.color + '66' : b.color;
+    ctx.fillRect(-s, -s, s*2, s*2);
+    // edge highlights
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth   = 1;
+    ctx.strokeRect(-s, -s, s*2, s*2);
+    // top face lighter
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.fillRect(-s, -s, s*2, s*0.4);
+
+  } else if(b.type === 'polygon'){
+    const n = b.sides || 5, r = b.size;
+    ctx.beginPath();
+    for(let i = 0; i < n; i++){
+      const a = i * Math.PI*2/n - Math.PI/2;
+      const px = Math.cos(a)*r, py = Math.sin(a)*r;
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = b.sleeping ? b.color + '66' : b.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+
+  } else if(b.type === 'rope'){
+    ctx.beginPath();
+    ctx.arc(0, 0, b.size, 0, Math.PI*2);
+    ctx.fillStyle = b.color + 'aa';
+    ctx.fill();
+    ctx.strokeStyle = b.color;
+    ctx.lineWidth   = 2;
+    ctx.stroke();
+  }
+
+  // pinned indicator
+  if(b.pinned){
+    ctx.beginPath();
+    ctx.arc(0, 0, 3.5, 0, Math.PI*2);
+    ctx.fillStyle   = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = '#00000044';
+    ctx.lineWidth   = 1;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function drawJoints(){
+  for(const j of joints){
+    ctx.beginPath();
+    ctx.moveTo(j.a.x, j.a.y);
+    ctx.lineTo(j.b.x, j.b.y);
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+    ctx.lineWidth   = 1.5;
+    ctx.setLineDash([5, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawGrid(){
+  const W = canvas.width, H = canvas.height;
+  ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+  ctx.lineWidth   = 1;
+  const step = 48;
+  for(let x = 0; x < W; x += step){
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke();
+  }
+  for(let y = 0; y < H; y += step){
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke();
+  }
+}
+
+function drawRopeCursor(){
+  if(!ropeAnchor) return;
+  ctx.beginPath();
+  ctx.arc(ropeAnchor.x, ropeAnchor.y, ropeAnchor.size+4, 0, Math.PI*2);
+  ctx.strokeStyle = '#378ADD88';
+  ctx.lineWidth   = 2;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(ropeAnchor.x, ropeAnchor.y);
+  ctx.lineTo(mouse.x, mouse.y);
+  ctx.strokeStyle = '#378ADD44';
+  ctx.lineWidth   = 1.5;
+  ctx.setLineDash([6,4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function drawSizeCursor(){
+  if(!mouse.down) return;
+  if(tool !== 'ball' && tool !== 'box' && tool !== 'polygon') return;
+  const dx = mouse.x - mouse.startX, dy = mouse.y - mouse.startY;
+  const sz = Math.max(5, Math.min(65, Math.sqrt(dx*dx+dy*dy)));
+  ctx.beginPath();
+  ctx.arc(mouse.startX, mouse.startY, sz, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.lineWidth   = 1;
+  ctx.setLineDash([5,5]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function updateGravArrow(){
+  const arrow = document.getElementById('grav-arrow');
+  const cx = 24, cy = 24, r = 16;
+  let angle = 0;
+  switch(gravMode){
+    case 'down':   angle = Math.PI/2; break;
+    case 'up':     angle = -Math.PI/2; break;
+    case 'zero':   angle = 0; break;
+    case 'radial': angle = Math.PI/2; break;
+    case 'anti':   angle = -Math.PI/2; break;
+    case 'orbit':  angle = 0; break;
+  }
+  const x2 = cx + Math.cos(angle)*r;
+  const y2 = cy + Math.sin(angle)*r;
+  arrow.setAttribute('x2', x2.toFixed(1));
+  arrow.setAttribute('y2', y2.toFixed(1));
+}
+
+function render(){
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // bg
+  ctx.fillStyle = '#0d0f14';
+  ctx.fillRect(0, 0, W, H);
+
+  drawGrid();
+  drawJoints();
+  for(const b of bodies) drawBody(b);
+  drawRopeCursor();
+  drawSizeCursor();
+
+  // stats
+  document.getElementById('s-bodies').textContent = bodies.length;
+  document.getElementById('s-joints').textContent = joints.length;
+  document.getElementById('s-colls').textContent  = collCount;
+  document.getElementById('s-grav-mode').textContent = gravMode;
+  let ke = 0;
+  for(const b of bodies) ke += 0.5 * b.mass * (b.vx*b.vx + b.vy*b.vy);
+  document.getElementById('s-energy').textContent = Math.round(ke);
+
+  updateGravArrow();
+}
+
+// ── MAIN LOOP ─────────────────────────────────────────────────────────────────
+function step(ts){
+  if(paused){ requestAnimationFrame(step); return; }
+
+  const rawDt = Math.min(0.05, (ts - lastTime) / 1000);
+  lastTime = ts;
+
+  // FPS
+  fpsAcc += rawDt; fpsFrames++;
+  if(fpsAcc >= 0.5){
+    fps = Math.round(fpsFrames / fpsAcc);
+    document.getElementById('s-fps').textContent = fps;
+    fpsAcc = 0; fpsFrames = 0;
+  }
+
+  const dt = rawDt / substeps;
+  for(let s = 0; s < substeps; s++){
+    integrate(dt);
+    wallCollide();
+    bodyCollide();
+    solveJoints();
+  }
+
+  render();
+  requestAnimationFrame(step);
+}
+
+// ── INPUT ─────────────────────────────────────────────────────────────────────
+function canvasPos(e){
+  const r = canvas.getBoundingClientRect();
+  const scaleX = canvas.width  / r.width;
+  const scaleY = canvas.height / r.height;
+  return {
+    x: (e.clientX - r.left) * scaleX,
+    y: (e.clientY - r.top)  * scaleY
+  };
+}
+
+function getBodyAt(x, y){
+  for(let i = bodies.length-1; i >= 0; i--){
+    const b = bodies[i];
+    const dx = x-b.x, dy = y-b.y;
+    if(dx*dx+dy*dy <= b.size*b.size) return b;
+  }
+  return null;
+}
+
+canvas.addEventListener('mousedown', e => {
+  const {x,y} = canvasPos(e);
+  mouse.x = x; mouse.y = y;
+  mouse.startX = x; mouse.startY = y;
+  mouse.down   = true;
+  mouse.button = e.button;
+
+  hideCtxMenu();
+
+  if(e.button === 2){
+    const b = getBodyAt(x, y);
+    if(b){ ctxTarget = b; showCtxMenu(e.clientX, e.clientY); }
+    return;
+  }
+
+  switch(tool){
+    case 'drag': {
+      dragBody = getBodyAt(x, y);
+      if(dragBody){ dragOffX = dragBody.x-x; dragOffY = dragBody.y-y; }
+      break;
+    }
+    case 'pin': {
+      const b = getBodyAt(x, y);
+      if(b){ b.pinned = !b.pinned; b.vx=0; b.vy=0; b.va=0; }
+      break;
+    }
+    case 'explode': {
+      shockwave(x, y, 4500);
+      break;
+    }
+    case 'burst': {
+      for(let i = 0; i < 14; i++){
+        const a = i * Math.PI*2/14;
+        const b = spawnBody(x, y, 'ball', 4+Math.random()*12);
+        const spd = 90 + Math.random()*180;
+        b.vx = Math.cos(a)*spd; b.vy = Math.sin(a)*spd;
+      }
+      break;
+    }
+    case 'rope': {
+      const hit = getBodyAt(x, y);
+      if(!ropeAnchor){
+        if(hit){ ropeAnchor = hit; }
+        else {
+          const a = spawnBody(x, y, 'ball', 5);
+          a.pinned = true; a.color = 'rgba(255,255,255,0.3)';
+          ropeAnchor = a;
+        }
+      } else {
+        const target = hit || spawnBody(x, y, 'ball');
+        const dx = target.x - ropeAnchor.x;
+        const dy = target.y - ropeAnchor.y;
+        joints.push({a: ropeAnchor, b: target, len: Math.sqrt(dx*dx+dy*dy), stiff:0.85});
+        ropeAnchor = null;
+      }
+      break;
+    }
+    case 'erase': {
+      const b = getBodyAt(x, y);
+      if(b){
+        joints  = joints.filter(j => j.a !== b && j.b !== b);
+        bodies  = bodies.filter(bb => bb !== b);
+        if(ropeAnchor === b) ropeAnchor = null;
+      }
+      break;
+    }
+  }
+});
+
+canvas.addEventListener('mousemove', e => {
+  const {x,y} = canvasPos(e);
+  mouse.x = x; mouse.y = y;
+  if(mouse.down && tool === 'drag' && dragBody){
+    dragBody.x  = x + dragOffX;
+    dragBody.y  = y + dragOffY;
+    dragBody.vx = 0; dragBody.vy = 0;
+    dragBody.sleepFrames = 0;
+  }
+});
+
+canvas.addEventListener('mouseup', e => {
+  const {x,y} = canvasPos(e);
+  if(e.button !== 0){ mouse.down=false; return; }
+
+  if(tool === 'ball' || tool === 'box' || tool === 'polygon'){
+    const dx = x - mouse.startX, dy = y - mouse.startY;
+    const sz = Math.max(5, Math.min(65, Math.sqrt(dx*dx+dy*dy)));
+    const b  = spawnBody(mouse.startX, mouse.startY, tool, sz);
+    b.vx = dx * 0.06;
+    b.vy = dy * 0.06;
+  }
+
+  mouse.down = false;
+  dragBody   = null;
+});
+
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+canvas.addEventListener('wheel', e => {
+  const sl = document.getElementById('sl-size');
+  sl.value = Math.max(+sl.min, Math.min(+sl.max, +sl.value - Math.sign(e.deltaY)*2));
+  sl.dispatchEvent(new Event('input'));
+  e.preventDefault();
+}, {passive:false});
+
+// touch
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0], r = canvas.getBoundingClientRect();
+  const scx = canvas.width/r.width, scy = canvas.height/r.height;
+  const x = (t.clientX-r.left)*scx, y = (t.clientY-r.top)*scy;
+  mouse.startX=x; mouse.startY=y; mouse.x=x; mouse.y=y; mouse.down=true;
+}, {passive:false});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const t = e.touches[0], r = canvas.getBoundingClientRect();
+  const scx = canvas.width/r.width, scy = canvas.height/r.height;
+  mouse.x = (t.clientX-r.left)*scx;
+  mouse.y = (t.clientY-r.top)*scy;
+  if(tool==='drag' && dragBody){
+    dragBody.x = mouse.x+dragOffX; dragBody.y = mouse.y+dragOffY;
+    dragBody.vx=0; dragBody.vy=0;
+  }
+}, {passive:false});
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if(tool==='ball'||tool==='box'||tool==='polygon'){
+    const dx=mouse.x-mouse.startX, dy=mouse.y-mouse.startY;
+    const sz=Math.max(5,Math.min(65,Math.sqrt(dx*dx+dy*dy)));
+    const b=spawnBody(mouse.startX,mouse.startY,tool,sz);
+    b.vx=dx*0.06; b.vy=dy*0.06;
+  }
+  mouse.down=false; dragBody=null;
+}, {passive:false});
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────────────
+const toolKeys = ['ball','box','polygon','rope','burst','drag','pin','explode','erase'];
+document.addEventListener('keydown', e => {
+  if(e.target !== document.body && e.target.tagName !== 'CANVAS') return;
+  switch(e.key){
+    case ' ': e.preventDefault(); togglePause(); break;
+    case 'c': clearAll(); break;
+    case 'g': cycleGravity(); break;
+    case 'w': toggleWind(); break;
+    case 'r': spawnRain(); break;
+    default:
+      const n = parseInt(e.key);
+      if(n >= 1 && n <= toolKeys.length) setTool(toolKeys[n-1]);
+  }
+});
+
+// ── TOOL CONTROLS ─────────────────────────────────────────────────────────────
+function setTool(t){
+  tool = t;
+  if(ropeAnchor && t !== 'rope') ropeAnchor = null;
+  document.querySelectorAll('.btn[id^="t-"]').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('t-'+t);
+  if(el) el.classList.add('active');
+
+  const tips = {
+    ball:    'drag to set size + velocity',
+    box:     'drag to set size + velocity',
+    polygon: 'drag to set size, random sides',
+    rope:    'click 2 bodies (or space) to link',
+    burst:   'click to spray particles',
+    drag:    'click + drag bodies',
+    pin:     'click body to pin/unpin',
+    explode: 'click for a shockwave',
+    erase:   'click body to remove it'
+  };
+  const tt = document.getElementById('tooltip');
+  tt.textContent = tips[t] || '';
+  tt.style.opacity = '1';
+  setTimeout(() => { tt.style.opacity = '0'; }, 2500);
+}
+
+const GRAVITY_MODES = ['down','up','zero','radial','anti','orbit'];
+function cycleGravity(){
+  const i = GRAVITY_MODES.indexOf(gravMode);
+  gravMode = GRAVITY_MODES[(i+1) % GRAVITY_MODES.length];
+  const icons = {down:'↓ down', up:'↑ up', zero:'· zero', radial:'◎ radial', anti:'✦ repel', orbit:'↻ orbit'};
+  document.getElementById('grav-lbl').textContent = icons[gravMode] || gravMode;
+}
+
+function toggleWind(){
+  windOn = !windOn;
+  document.getElementById('wind-lbl').textContent = windOn ? 'on' : 'off';
+  document.getElementById('wind-btn').classList.toggle('active', windOn);
+}
+
+function togglePause(){
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? '▶ resume' : '⏸ pause';
+}
+
+function toggleHelp(){
+  const h = document.getElementById('help-overlay');
+  helpVisible = !helpVisible;
+  h.style.opacity = helpVisible ? '1' : '0';
+}
+
+// ── CONTEXT MENU ──────────────────────────────────────────────────────────────
+function showCtxMenu(cx, cy){
+  const m = document.getElementById('ctx-menu');
+  m.style.display = 'block';
+  m.style.left    = cx + 'px';
+  m.style.top     = cy + 'px';
+}
+function hideCtxMenu(){
+  document.getElementById('ctx-menu').style.display = 'none';
+}
+document.addEventListener('mousedown', e => {
+  if(!e.target.closest('#ctx-menu')) hideCtxMenu();
+});
+
+function ctxPin(){
+  if(!ctxTarget) return;
+  ctxTarget.pinned = !ctxTarget.pinned;
+  ctxTarget.vx = ctxTarget.vy = ctxTarget.va = 0;
+  hideCtxMenu();
+}
+function ctxSleep(){
+  if(!ctxTarget) return;
+  ctxTarget.sleeping = !ctxTarget.sleeping;
+  ctxTarget.sleepFrames = ctxTarget.sleeping ? 999 : 0;
+  hideCtxMenu();
+}
+function ctxBoost(){
+  if(!ctxTarget) return;
+  const a = Math.random() * Math.PI*2;
+  ctxTarget.vx += Math.cos(a)*200; ctxTarget.vy += Math.sin(a)*200;
+  ctxTarget.sleepFrames = 0;
+  hideCtxMenu();
+}
+function ctxFreeze(){
+  if(!ctxTarget) return;
+  ctxTarget.vx = ctxTarget.vy = ctxTarget.va = 0;
+  ctxTarget.sleepFrames = 999;
+  hideCtxMenu();
+}
+function ctxDelete(){
+  if(!ctxTarget) return;
+  joints = joints.filter(j => j.a !== ctxTarget && j.b !== ctxTarget);
+  bodies = bodies.filter(b => b !== ctxTarget);
+  if(ropeAnchor === ctxTarget) ropeAnchor = null;
+  ctxTarget = null;
+  hideCtxMenu();
+}
+
+// ── SHOCKWAVE ─────────────────────────────────────────────────────────────────
+function shockwave(cx, cy, force){
+  for(const b of bodies){
+    if(b.pinned) continue;
+    const dx = b.x - cx, dy = b.y - cy;
+    const d  = Math.sqrt(dx*dx + dy*dy) || 1;
+    const f  = force / Math.max(d * d * 0.05, 20);
+    b.vx += dx/d * f / b.mass;
+    b.vy += dy/d * f / b.mass;
+    b.sleepFrames = 0;
+  }
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+(function boot(){
+  const W = canvas.width, H = canvas.height;
+  const types = ['ball','box','polygon'];
+  for(let i = 0; i < 12; i++){
+    const b = spawnBody(
+      80 + Math.random()*(W-160),
+      80 + Math.random()*(H*0.7),
+      types[i%3],
+      10 + Math.random()*20
+    );
+    b.vx = (Math.random()-0.5)*80;
+    b.vy = (Math.random()-0.5)*80;
+  }
+
+  const tt = document.getElementById('tooltip');
+  setTimeout(() => { tt.style.opacity = '0'; }, 4000);
+
+  requestAnimationFrame(ts => { lastTime = ts; requestAnimationFrame(step); });
+})();
+</script>
+</body>
+</html>
