@@ -670,10 +670,11 @@ footer {
   margin-top: 0.2rem;
 }
 
+.footer-counter-hosted br,
 .footer-counter-credit {
-  font-size: 0.62rem;
-  color: var(--muted);
+  display: none;
 }
+
 
 .footer-links {
   display: flex;
