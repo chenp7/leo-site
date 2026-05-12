@@ -643,9 +643,32 @@ footer {
   gap: 1rem;
 }
 
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .footer-copy {
   font-family: var(--font-mono);
   font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.footer-counter-hosted {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.footer-counter-hosted img {
+  display: inline-block;
+  margin-top: 0.2rem;
+}
+
+.footer-counter-credit {
+  font-size: 0.62rem;
   color: var(--muted);
 }
 
