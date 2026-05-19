@@ -2,11 +2,12 @@
 <html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Warzone</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#000;overflow:hidden;font-family:monospace;color:#fff;user-select:none;}
-#c{display:block;width:100vw;height:100vh;cursor:none;}
+#c{display:block;width:100vw;height:100vh;cursor:none;touch-action:none;}
 /* all HUD elements fixed so they never shift */
 #xh{position:fixed;top:50%;left:50%;width:28px;height:28px;margin-left:-14px;margin-top:-14px;pointer-events:none;z-index:10;}
 #ammo{position:fixed;bottom:32px;right:24px;text-align:right;}
@@ -45,6 +46,87 @@ body{background:#000;overflow:hidden;font-family:monospace;color:#fff;user-selec
 #ds{font-size:12px;color:#888;letter-spacing:2px;}
 .db{background:#111;border:1px solid #522;color:#f88;font-size:12px;padding:10px 28px;cursor:pointer;border-radius:3px;letter-spacing:2px;}
 .db:hover{background:#1a0808;}
+
+/* ===== MOBILE CONTROLS ===== */
+#mob{display:none;position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:15;}
+/* Left joystick */
+#joy-zone{position:fixed;bottom:130px;left:20px;width:120px;height:120px;border-radius:60px;
+  background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);pointer-events:all;touch-action:none;}
+#joy-knob{position:absolute;top:50%;left:50%;width:48px;height:48px;border-radius:50%;
+  background:rgba(255,255,255,0.3);border:2px solid rgba(255,255,255,0.5);
+  transform:translate(-50%,-50%);pointer-events:none;}
+/* Right look zone */
+#look-zone{position:fixed;right:0;bottom:0;width:55%;height:70%;pointer-events:all;touch-action:none;}
+/* Action buttons */
+.mob-btn{position:fixed;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;letter-spacing:0.5px;pointer-events:all;touch-action:none;
+  border:2px solid rgba(255,255,255,0.25);background:rgba(0,0,0,0.45);color:#fff;user-select:none;
+  -webkit-user-select:none;}
+#btn-fire{bottom:140px;right:24px;width:72px;height:72px;background:rgba(220,50,50,0.45);border-color:rgba(255,100,100,0.5);font-size:13px;}
+#btn-jump{bottom:222px;right:106px;width:52px;height:52px;background:rgba(80,160,255,0.35);border-color:rgba(100,180,255,0.5);}
+#btn-reload{bottom:222px;right:24px;width:52px;height:52px;background:rgba(255,200,0,0.3);border-color:rgba(255,200,0,0.5);color:#fc4;}
+#btn-grenade{bottom:284px;right:106px;width:52px;height:52px;background:rgba(80,200,80,0.3);border-color:rgba(100,220,100,0.5);font-size:10px;}
+#btn-knife{bottom:284px;right:24px;width:52px;height:52px;background:rgba(160,100,50,0.35);border-color:rgba(200,140,80,0.5);font-size:10px;}
+#btn-medkit{bottom:346px;right:24px;width:52px;height:52px;background:rgba(220,50,50,0.3);border-color:rgba(255,100,100,0.5);font-size:18px;}
+/* Weapon slots mobile - top row */
+#mob-slots{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);display:flex;gap:6px;pointer-events:all;}
+.mob-slot{font-size:9px;padding:3px 8px;border:1px solid #333;border-radius:3px;color:#555;
+  background:rgba(0,0,0,0.5);letter-spacing:1px;touch-action:none;}
+.mob-slot.on{border-color:#fc4;color:#fc4;}
+/* Adjust HUD for mobile */
+@media(max-width:600px){
+  #ammo{bottom:200px;}
+  #hp{bottom:200px;}
+  #sl{display:none;}
+  #gd{bottom:195px;}
+  #stk{display:none;}
+  #tb{font-size:10px;padding:4px 8px;}
+  #mm{width:90px;height:90px;top:40px;}
+  #kf{top:40px;left:8px;}
+  .kfe{font-size:10px;}
+}
+
+
+/* ===== ABILITY WHEEL ===== */
+#wheel-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.85);z-index:200;
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  pointer-events:all;
+}
+#wheel-title{font-size:22px;letter-spacing:4px;color:#fc4;text-align:center;text-shadow:0 0 20px #fc4;}
+#wheel-subtitle{font-size:12px;color:#888;letter-spacing:2px;text-align:center;}
+#wheel-canvas{border-radius:50%;box-shadow:0 0 40px rgba(255,200,0,0.3);cursor:pointer;}
+#wheel-spin-btn{
+  padding:12px 36px;background:#fc4;color:#111;border:none;border-radius:6px;
+  font-size:14px;letter-spacing:3px;cursor:pointer;font-family:monospace;font-weight:700;
+}
+#wheel-spin-btn:hover{background:#ffd96a;}
+#wheel-spin-btn:disabled{background:#555;color:#888;cursor:not-allowed;}
+#wheel-result{font-size:16px;color:#fff;letter-spacing:2px;text-align:center;min-height:24px;}
+#wheel-close{
+  padding:8px 24px;background:transparent;color:#666;border:1px solid #333;
+  border-radius:4px;font-size:11px;cursor:pointer;letter-spacing:2px;font-family:monospace;
+}
+#wheel-close:hover{color:#aaa;border-color:#666;}
+/* Abilities HUD - top left under topbar */
+#abilities-hud{
+  position:fixed;top:44px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;pointer-events:none;z-index:10;
+}
+.abil-badge{
+  background:rgba(0,0,0,0.75);border:1px solid #555;border-radius:5px;
+  padding:3px 10px;font-size:10px;color:#fc4;letter-spacing:1px;
+  display:flex;align-items:center;gap:5px;
+}
+.abil-icon{font-size:14px;}
+/* Kill counter indicator */
+#kill-progress{
+  position:fixed;top:44px;right:14px;font-size:10px;color:#666;
+  background:rgba(0,0,0,0.6);padding:2px 8px;border-radius:3px;
+  letter-spacing:1px;
+}
+
 </style>
 </head>
 <body>
@@ -94,6 +176,36 @@ body{background:#000;overflow:hidden;font-family:monospace;color:#fff;user-selec
 <div id="lg">Select a game mode to begin</div>
 <div id="aim-hint">CLICK to enable full 360 turning | ESC to release</div>
 
+
+<!-- ABILITY WHEEL -->
+<div id="wheel-overlay">
+  <div id="wheel-title">ABILITY WHEEL</div>
+  <div id="wheel-subtitle">SPIN TO WIN AN ABILITY</div>
+  <canvas id="wheel-canvas" width="320" height="320"></canvas>
+  <div id="wheel-result"></div>
+  <button id="wheel-spin-btn">SPIN</button>
+  <button id="wheel-close">KEEP PLAYING</button>
+</div>
+<!-- Abilities display -->
+<div id="abilities-hud"></div>
+<div id="kill-progress">NEXT WHEEL: 2 kills</div>
+
+<!-- MOBILE CONTROLS -->
+<div id="mob">
+  <div id="joy-zone"><div id="joy-knob"></div></div>
+  <div id="look-zone"></div>
+  <div class="mob-btn" id="btn-fire">FIRE</div>
+  <div class="mob-btn" id="btn-jump">JUMP</div>
+  <div class="mob-btn" id="btn-reload">RELOAD</div>
+  <div class="mob-btn" id="btn-grenade">NADE</div>
+  <div class="mob-btn" id="btn-knife">KNIFE</div>
+  <div class="mob-btn" id="btn-medkit">&#x2764;</div>
+  <div id="mob-slots">
+    <div class="mob-slot" id="ms0">1</div>
+    <div class="mob-slot on" id="ms1">2</div>
+    <div class="mob-slot" id="ms2">3</div>
+  </div>
+</div>
 
 <div id="menu">
   <h1>WARZONE</h1>
@@ -613,8 +725,9 @@ function useMedkit(){
   if(!gOn||medkits<=0){ lg('No medkits!'); return; }
   if(pHP>=100){ lg('Already at full health!'); return; }
   medkits--;
-  var heal=Math.round(Math.min(50,100-pHP)); // heal half of missing health = up to 50hp
-  pHP=Math.min(100,pHP+heal);
+  var maxHeal=typeof getMedkitHeal==="function"?getMedkitHeal():50;
+  var heal=Math.round(Math.min(maxHeal,getMaxHP()-pHP));
+  pHP=Math.min(typeof getMaxHP==="function"?getMaxHP():100,pHP+heal);
   document.getElementById('hpf').style.width=pHP+'%';
   document.getElementById('hpf').style.background=pHP>50?'#3f9':pHP>25?'#dd3':'#d33';
   updMedHUD();
@@ -688,7 +801,13 @@ function dmgEnemy(e,dmg){
 function killEnemy(e){
   if(e.dead) return; e.dead=true;
   pKills++; blueK++;
+  killsThisRound++;
   addKF('YOU','ENEMY');
+  updKillProgress();
+  // Every 2 kills, open the ability wheel (if not maxed)
+  if(killsThisRound % killsNeededForWheel === 0 && playerAbilities.length < 3){
+    setTimeout(openWheel, 600); // slight delay so kill effect plays first
+  }
   for(var i=0;i<7;i++){
     var m=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.1,0.1),new THREE.MeshBasicMaterial({color:0xff4444,transparent:true,opacity:1}));
     m.position.copy(e.m.position).setY(e.m.position.y+1); SCN.add(m);
@@ -761,6 +880,7 @@ function aiFriend(f,dt){
 
 // ===== HUD =====
 function updWpnHUD(){
+  if(typeof updMobSlots==="function") updMobSlots();
   var wk=curWpn(); var w=wk?WP[wk]:null;
   document.getElementById('ammo-n').textContent=reloading?'...':(wk?clips[wk]:'--');
   document.getElementById('ammo-r').textContent='/ '+(wk?ammos[wk]:'--');
@@ -890,6 +1010,7 @@ function startGame(mode){
   document.getElementById('menu').style.display='none';
   gMode=mode; gOn=true; round=1;
   pHP=100; pArmor=0; pKills=0; pDeaths=0; blueK=0; redK=0; grenCnt=3;
+  playerAbilities=[]; killsThisRound=0; updAbilityHUD(); updKillProgress();
   slots=['pistol','rifle',null]; curSlot=1;
   clips={pistol:15,rifle:30,smg:30,shotgun:7,sniper:5,lmg:100,rpg:1};
   ammos={pistol:120,rifle:270,smg:270,shotgun:56,sniper:40,lmg:300,rpg:4};
@@ -932,7 +1053,7 @@ function loop(ts){
 
   // ---- MOVE ----
   sprinting=keys['ShiftLeft']&&!crouching;
-  var spd=crouching?2.2:sprinting?8.5:4.8;
+  var spd=crouching?2.2:sprinting?(8.5*(typeof getSprintMult==="function"?getSprintMult():1)):(4.8*(typeof getSpdMult==="function"?getSpdMult():1));
   var fwd=new THREE.Vector3(0,0,-1).applyQuaternion(RIG.quaternion); fwd.y=0; fwd.normalize();
   var rgt=new THREE.Vector3(1,0,0).applyQuaternion(RIG.quaternion); rgt.y=0; rgt.normalize();
   var mv=new THREE.Vector3();
@@ -940,6 +1061,11 @@ function loop(ts){
   if(keys['KeyS']||keys['ArrowDown']) mv.sub(fwd);
   if(keys['KeyA']||keys['ArrowLeft']) mv.sub(rgt);
   if(keys['KeyD']||keys['ArrowRight'])mv.add(rgt);
+  // Mobile joystick
+  if(typeof joyY!=='undefined'&&joyY<-0.15) mv.addScaledVector(fwd,-joyY);
+  if(typeof joyY!=='undefined'&&joyY>0.15)  mv.addScaledVector(fwd,-joyY);
+  if(typeof joyX!=='undefined'&&joyX>0.15)  mv.addScaledVector(rgt,joyX);
+  if(typeof joyX!=='undefined'&&joyX<-0.15) mv.addScaledVector(rgt,joyX);
   var moving=mv.length()>0;
   if(moving) mv.normalize().multiplyScalar(spd*dt);
   RIG.position.add(mv);
@@ -972,7 +1098,7 @@ function loop(ts){
   // ---- RELOAD ----
   if(reloading){
     relT+=dt;
-    var prog=Math.min(1,relT/curWD().rd);
+    var prog=Math.min(1,relT/(curWD().rd*(typeof getReloadMult==="function"?getReloadMult():1)));
     document.getElementById('rl-f').style.width=(prog*100)+'%';
     if(prog>=1) finReload();
   }
@@ -1001,7 +1127,8 @@ function loop(ts){
           if(b.ex){explode(b.m.position.clone());}
           else{
             var hs=bpos.distanceTo(new THREE.Vector3(ep.x,ep.y+1.7,ep.z))<0.6;
-            dmgEnemy(e,hs?b.dmg*2.2:b.dmg);
+            var dmult=typeof getDmgMult==="function"?getDmgMult():1;
+            dmgEnemy(e,hs?b.dmg*2.2*dmult:b.dmg*dmult);
             if(hs){banner('HEADSHOT!',700);}
           }
           SCN.remove(b.m);bullets.splice(i,1);hit=true;break;
@@ -1101,6 +1228,8 @@ function loop(ts){
       round++;
       document.getElementById('rn').textContent=round;
       banner('ROUND '+round);
+  // Re-apply armor ability each round
+  if(playerAbilities.some(function(a){return a.id==='armor';})){pArmor=Math.min(100,pArmor+50);document.getElementById('apf').style.width=pArmor+'%';}
       var wc2=Math.min(6+round*2,22);
       for(var i=0;i<wc2;i++){var a=Math.random()*Math.PI*2,d=30+Math.random()*60;spawnEnemy(Math.cos(a)*d,Math.sin(a)*d);}
       pHP=Math.min(100,pHP+25); pArmor=Math.min(100,pArmor+20);
@@ -1120,6 +1249,414 @@ function loop(ts){
   R.render(SCN,CAM);
 }
 requestAnimationFrame(loop);
+
+// ================================================================
+// MOBILE TOUCH CONTROLS
+// ================================================================
+var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || ('ontouchstart' in window);
+if(isMobile){
+  document.getElementById('mob').style.display = 'block';
+  // Prevent default touch scrolling on canvas
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+}
+
+// ---- JOYSTICK (left thumb - movement) ----
+var joyActive = false;
+var joyOriginX = 0, joyOriginY = 0;
+var joyX = 0, joyY = 0; // -1 to 1
+var joyZone = document.getElementById('joy-zone');
+var joyKnob = document.getElementById('joy-knob');
+
+if(joyZone){
+  joyZone.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    joyActive = true;
+    var t2 = e.touches[0];
+    var rect = joyZone.getBoundingClientRect();
+    joyOriginX = rect.left + rect.width/2;
+    joyOriginY = rect.top + rect.height/2;
+  },{passive:false});
+
+  joyZone.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    if(!joyActive) return;
+    var t2 = e.touches[0];
+    var dx = t2.clientX - joyOriginX;
+    var dy = t2.clientY - joyOriginY;
+    var maxR = 44;
+    var dist = Math.sqrt(dx*dx+dy*dy);
+    if(dist > maxR){ dx = dx/dist*maxR; dy = dy/dist*maxR; }
+    joyX = dx/maxR;
+    joyY = dy/maxR;
+    joyKnob.style.transform = 'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px))';
+  },{passive:false});
+
+  joyZone.addEventListener('touchend', function(e){
+    e.preventDefault();
+    joyActive = false;
+    joyX = 0; joyY = 0;
+    joyKnob.style.transform = 'translate(-50%,-50%)';
+  },{passive:false});
+}
+
+// ---- LOOK ZONE (right thumb - camera) ----
+var lookZone = document.getElementById('look-zone');
+var lookActive = false;
+var lookLastX = 0, lookLastY = 0;
+if(lookZone){
+  lookZone.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    var t2 = e.changedTouches[0];
+    lookActive = true;
+    lookLastX = t2.clientX;
+    lookLastY = t2.clientY;
+  },{passive:false});
+
+  lookZone.addEventListener('touchmove', function(e){
+    e.preventDefault();
+    if(!lookActive) return;
+    var t2 = e.changedTouches[0];
+    var dx = t2.clientX - lookLastX;
+    var dy = t2.clientY - lookLastY;
+    lookLastX = t2.clientX;
+    lookLastY = t2.clientY;
+    YAW -= dx * 0.005;
+    PITCH = Math.max(-1.3, Math.min(0.9, PITCH - dy * 0.005));
+    var _q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), -dx*0.005);
+    RIG.quaternion.multiplyQuaternions(_q, RIG.quaternion);
+    PITCHGRP.rotation.x = PITCH;
+  },{passive:false});
+
+  lookZone.addEventListener('touchend', function(e){
+    e.preventDefault();
+    lookActive = false;
+  },{passive:false});
+}
+
+// ---- ACTION BUTTONS ----
+function addTouchBtn(id, fn){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('touchstart', function(e){ e.preventDefault(); fn(); },{passive:false});
+}
+addTouchBtn('btn-fire', function(){ doShoot(); });
+addTouchBtn('btn-jump', function(){ if(onGnd&&!crouching){ velY=7; onGnd=false; } });
+addTouchBtn('btn-reload', doReload);
+addTouchBtn('btn-grenade', doGrenade);
+addTouchBtn('btn-knife', doKnife);
+addTouchBtn('btn-medkit', useMedkit);
+
+// Auto-fire on hold for mobile
+var mobileFireInterval = null;
+var btnFire = document.getElementById('btn-fire');
+if(btnFire){
+  btnFire.addEventListener('touchstart', function(e){
+    e.preventDefault();
+    doShoot();
+    mobileFireInterval = setInterval(function(){
+      var wk = curWpn();
+      if(wk && WP[wk] && WP[wk].auto) doShoot();
+    }, 80);
+  },{passive:false});
+  btnFire.addEventListener('touchend', function(e){
+    e.preventDefault();
+    clearInterval(mobileFireInterval);
+  },{passive:false});
+}
+
+// Mobile slot buttons
+['ms0','ms1','ms2'].forEach(function(id, i){
+  var el = document.getElementById(id);
+  if(el) el.addEventListener('touchstart', function(e){
+    e.preventDefault(); setSlot(i);
+  },{passive:false});
+});
+
+// ---- JOYSTICK MOVEMENT in main loop ----
+// We hook into the existing movement system by simulating key states
+// This runs BEFORE the main loop's key checks
+var _origLoop = loop;
+// Instead, inject joystick into the movement section directly
+// We expose joyX/joyY and check them in movement
+
+// ---- UPDATE MOBILE SLOT HUD ----
+function updMobSlots(){
+  ['ms0','ms1','ms2'].forEach(function(id, i){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.className = 'mob-slot' + (i===curSlot?' on':'');
+    el.textContent = (i+1) + (slots[i] ? ':'+slots[i].toUpperCase().slice(0,3) : '');
+  });
+}
+
+
+// ================================================================
+// ABILITY WHEEL SYSTEM
+// ================================================================
+var playerAbilities = []; // max 3 permanent abilities
+var killsThisRound = 0;   // track kills for wheel trigger
+var killsNeededForWheel = 2; // every 2 kills = spin
+var wheelSpinning = false;
+var wheelAngle = 0;       // current wheel rotation angle
+var wheelVelocity = 0;    // spin speed
+var wheelAnimFrame = null;
+var wheelCanSpin = false;
+
+// All possible abilities
+var ALL_ABILITIES = [
+  {id:'speed',     name:'SPEED BOOST',   icon:'<img src="" style="display:none">',   emoji:'-', desc:'Move 40% faster',          color:'#fc4'},
+  {id:'health',    name:'IRON SKIN',      emoji:'-',  desc:'Max HP increased to 150',    color:'#4cf'},
+  {id:'reload',    name:'QUICK RELOAD',   emoji:'-',  desc:'Reload 50% faster',          color:'#4fc'},
+  {id:'damage',    name:'MARKSMAN',       emoji:'-',  desc:'Deal 40% more damage',       color:'#f84'},
+  {id:'medkit',    name:'FIELD MEDIC',    emoji:'-',   desc:'Medkits heal 100% health',   color:'#f44'},
+  {id:'grenade',   name:'DEMO EXPERT',    emoji:'-',  desc:'3x grenade ammo',            color:'#8f4'},
+  {id:'armor',     name:'FLAK JACKET',    emoji:'-',  desc:'Start each round with armor', color:'#88f'},
+  {id:'sprint',    name:'ATHLETE',        emoji:'-',  desc:'Sprint is 60% faster',       color:'#fa4'},
+];
+
+function getWheelSegments(){
+  // Filter out already-owned abilities and 'speed' if already 3
+  var avail = ALL_ABILITIES.filter(function(a){
+    return !playerAbilities.some(function(p){return p.id===a.id;});
+  });
+  // If player already has 3 max, still spin but all are upgrades or show "already maxed"
+  if(avail.length === 0) avail = ALL_ABILITIES.slice(); // fallback
+  return avail;
+}
+
+function openWheel(){
+  if(!gOn) return;
+  // Pause game
+  gOn = false;
+  var overlay = document.getElementById('wheel-overlay');
+  overlay.style.display = 'flex';
+  wheelCanSpin = true;
+  wheelSpinning = false;
+  wheelAngle = 0;
+  wheelVelocity = 0;
+  document.getElementById('wheel-result').textContent = '';
+  document.getElementById('wheel-spin-btn').disabled = false;
+  document.getElementById('wheel-spin-btn').textContent = 'SPIN';
+  var segs = getWheelSegments();
+  drawWheel(segs, wheelAngle);
+}
+
+function drawWheel(segs, angle){
+  var canvas = document.getElementById('wheel-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var cx = W/2, cy = H/2, r = cx - 8;
+  var n = segs.length;
+  var arc = (Math.PI*2)/n;
+  ctx.clearRect(0,0,W,H);
+
+  for(var i=0;i<n;i++){
+    var startA = angle + i*arc;
+    var endA   = startA + arc;
+    // Segment
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,startA,endA);
+    ctx.closePath();
+    ctx.fillStyle = i%2===0 ? segs[i].color+'cc' : segs[i].color+'88';
+    ctx.fill();
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Emoji label
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(startA + arc/2);
+    ctx.textAlign = 'center';
+    ctx.font = '18px serif';
+    ctx.fillText(segs[i].emoji, r*0.65, 6);
+    ctx.font = 'bold 9px monospace';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(segs[i].name, r*0.65, 20);
+    ctx.restore();
+  }
+
+  // Center circle
+  ctx.beginPath();
+  ctx.arc(cx,cy,22,0,Math.PI*2);
+  ctx.fillStyle = '#111';
+  ctx.fill();
+  ctx.strokeStyle = '#fc4';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = '#fc4';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SPIN', cx, cy+4);
+
+  // Pointer triangle at top
+  ctx.beginPath();
+  ctx.moveTo(cx-14, 0);
+  ctx.lineTo(cx+14, 0);
+  ctx.lineTo(cx, 26);
+  ctx.closePath();
+  ctx.fillStyle = '#fc4';
+  ctx.fill();
+}
+
+function spinWheel(){
+  if(!wheelCanSpin || wheelSpinning) return;
+  wheelSpinning = true;
+  wheelCanSpin = false;
+  document.getElementById('wheel-spin-btn').disabled = true;
+  document.getElementById('wheel-spin-btn').textContent = 'SPINNING...';
+  // Random high velocity then decelerate
+  wheelVelocity = 0.25 + Math.random()*0.35;
+  var segs = getWheelSegments();
+
+  function animate(){
+    wheelAngle += wheelVelocity;
+    wheelVelocity *= 0.985; // deceleration
+    drawWheel(segs, wheelAngle);
+    if(wheelVelocity > 0.004){
+      wheelAnimFrame = requestAnimationFrame(animate);
+    } else {
+      // Stopped - figure out which segment is at the top (pointer)
+      var arc = (Math.PI*2)/segs.length;
+      // The pointer is at the top (-PI/2), wheel angle is added
+      // Find which segment is under the pointer
+      var normalized = ((-Math.PI/2 - wheelAngle) % (Math.PI*2) + Math.PI*2) % (Math.PI*2);
+      var idx = Math.floor(normalized / arc) % segs.length;
+      var won = segs[idx];
+      wheelSpinning = false;
+      awardAbility(won);
+    }
+  }
+  wheelAnimFrame = requestAnimationFrame(animate);
+}
+
+function awardAbility(ability){
+  var resultEl = document.getElementById('wheel-result');
+  var ownCount = playerAbilities.length;
+
+  if(ownCount >= 3){
+    resultEl.textContent = 'MAX ABILITIES REACHED! No more slots.';
+    document.getElementById('wheel-spin-btn').textContent = 'MAXED OUT';
+    setTimeout(closeWheel, 2000);
+    return;
+  }
+
+  // Check duplicate
+  var already = playerAbilities.some(function(a){return a.id===ability.id;});
+  if(already){
+    resultEl.textContent = 'Already have ' + ability.name + '! Spin again?';
+    wheelCanSpin = true;
+    document.getElementById('wheel-spin-btn').disabled = false;
+    document.getElementById('wheel-spin-btn').textContent = 'SPIN AGAIN';
+    return;
+  }
+
+  playerAbilities.push(ability);
+  applyAbility(ability);
+  resultEl.innerHTML = ability.emoji + ' <b style="color:' + ability.color + '">' + ability.name + '</b><br><span style="font-size:11px;color:#888;">' + ability.desc + '</span>';
+  document.getElementById('wheel-spin-btn').textContent = 'CLAIMED!';
+  updAbilityHUD();
+  setTimeout(closeWheel, 2500);
+}
+
+function applyAbility(a){
+  switch(a.id){
+    case 'health':
+      // Increase max HP - handled in dmgPlayer cap check
+      pHP = Math.min(150, pHP + 50);
+      document.getElementById('hpf').style.width = (pHP/getMaxHP()*100) + '%';
+      break;
+    case 'armor':
+      pArmor = Math.min(100, pArmor + 50);
+      document.getElementById('apf').style.width = pArmor + '%';
+      break;
+    case 'grenade':
+      grenCnt = Math.min(9, grenCnt + 3);
+      updGrenHUD();
+      break;
+    case 'medkit':
+      medkits += 2;
+      updMedHUD();
+      break;
+  }
+  // speed, reload, damage, sprint are checked dynamically
+}
+
+function getMaxHP(){
+  return playerAbilities.some(function(a){return a.id==='health';}) ? 150 : 100;
+}
+function getDmgMult(){
+  return playerAbilities.some(function(a){return a.id==='damage';}) ? 1.4 : 1.0;
+}
+function getReloadMult(){
+  return playerAbilities.some(function(a){return a.id==='reload';}) ? 0.5 : 1.0;
+}
+function getSpdMult(){
+  return playerAbilities.some(function(a){return a.id==='speed';}) ? 1.4 : 1.0;
+}
+function getSprintMult(){
+  return playerAbilities.some(function(a){return a.id==='sprint';}) ? 1.6 : 1.0;
+}
+function getMedkitHeal(){
+  return playerAbilities.some(function(a){return a.id==='medkit';}) ? 100 : 50;
+}
+
+function closeWheel(){
+  var overlay = document.getElementById('wheel-overlay');
+  overlay.style.display = 'none';
+  gOn = true; // resume game
+}
+
+function updAbilityHUD(){
+  var hud = document.getElementById('abilities-hud');
+  if(!hud) return;
+  hud.innerHTML = '';
+  playerAbilities.forEach(function(a){
+    var badge = document.createElement('div');
+    badge.className = 'abil-badge';
+    badge.style.borderColor = a.color;
+    badge.innerHTML = '<span class="abil-icon">' + a.emoji + '</span>' + a.name;
+    hud.appendChild(badge);
+  });
+}
+
+function updKillProgress(){
+  var el = document.getElementById('kill-progress');
+  if(!el) return;
+  var killsInCycle = killsThisRound % killsNeededForWheel;
+  var remaining = killsNeededForWheel - killsInCycle;
+  if(playerAbilities.length >= 3){
+    el.textContent = 'ABILITIES: MAXED';
+    el.style.color = '#fc4';
+  } else {
+    el.textContent = 'WHEEL IN: ' + remaining + ' kill' + (remaining!==1?'s':'');
+    el.style.color = '#666';
+  }
+}
+
+// Wire up spin button and close button
+document.addEventListener('DOMContentLoaded', function(){
+  var spinBtn = document.getElementById('wheel-spin-btn');
+  if(spinBtn) spinBtn.addEventListener('click', spinWheel);
+  var closeBtn = document.getElementById('wheel-close');
+  if(closeBtn) closeBtn.addEventListener('click', closeWheel);
+});
+// Also wire immediately (DOMContentLoaded may have already fired)
+(function(){
+  var spinBtn = document.getElementById('wheel-spin-btn');
+  if(spinBtn) spinBtn.addEventListener('click', spinWheel);
+  var closeBtn = document.getElementById('wheel-close');
+  if(closeBtn) closeBtn.addEventListener('click', closeWheel);
+})();
+
+// Touch support for wheel canvas
+var wcanvas = document.getElementById('wheel-canvas');
+if(wcanvas){
+  wcanvas.addEventListener('touchstart', function(e){ e.preventDefault(); spinWheel(); },{passive:false});
+}
+
 </script>
 </body>
 </html>
